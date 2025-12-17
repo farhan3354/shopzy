@@ -32,7 +32,6 @@ export const createSubcategory = async (req, res) => {
   }
 };
 
-// Get all subcategories (with parent category info)
 export const getSubcategories = async (req, res) => {
   try {
     const subcateg = await Subcategory.find().populate(
@@ -50,7 +49,6 @@ export const getSubcategories = async (req, res) => {
   }
 };
 
-// Get a single subcategory by ID
 export const getSubcategoryById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -93,7 +91,6 @@ export const getSubcategoriesByCategoryId = async (req, res) => {
   }
 };
 
-// Update subcategory
 export const updateSubcategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -117,7 +114,6 @@ export const updateSubcategory = async (req, res) => {
   }
 };
 
-// Delete subcategory
 export const deleteSubcategory = async (req, res) => {
   try {
     const { id } = req.params;

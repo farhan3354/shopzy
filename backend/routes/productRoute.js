@@ -9,8 +9,8 @@ import {
   getVendorProducts,
   getcategoryProduct,
 } from "../controllers/productController.js";
-import { upload } from "../config/s3Config.js";
-// import { upload } from "./../middlewares/multermiddleware.js";
+// import { upload } from "../config/s3Config.js";
+import { upload } from "./../middlewares/multermiddleware.js";
 import {
   adminMiddleware,
   allowRoles,
