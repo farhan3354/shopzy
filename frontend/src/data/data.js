@@ -133,11 +133,11 @@ export const adminsidebarmenu = [
     icon: "MdListAlt",
     to: "/admin-dashboard/coupons",
   },
-  {
-    title: "Banner",
-    icon: "MdListAlt",
-    to: "/admin-dashboard/add-banners",
-  },
+  // {
+  //   title: "Banner",
+  //   icon: "MdListAlt",
+  //   to: "/admin-dashboard/add-banners",
+  // },
    {
     title: "FAQ",
     icon: "MdListAlt",

@@ -1,19 +1,3 @@
-// import express from "express";
-// import {
-//   createBanner,
-//   getBanners,
-//   deleteBanner,
-// } from "../controllers/bannerController.js";
-// import { uploadbanner } from "../middlewares/multermiddleware.js";
-
-// const router = express.Router();
-
-// router.post("/add", uploadbanner.single("image"), createBanner);
-// router.get("/", getBanners);
-// router.delete("/:id", deleteBanner);
-
-// export default router;
-
 import express from "express";
 import {
   createBanner,
@@ -23,7 +7,7 @@ import {
   getBannerById,
   toggleBannerStatus,
 } from "../controllers/bannerController.js";
-import { uploadbanner } from "../config/s3Config.js";
+import { uploadbanner } from "../middlewares/multermiddleware.js";
 
 const router = express.Router();
 

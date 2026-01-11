@@ -18,7 +18,7 @@ import footerRoutes from "./routes/footerRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import pageRoutes from "./routes/pageRoutes.js";
 import uploadText from "./routes/uploadRoutes.js";
-import servicecontactRoutes from "./routes/servicescontactRoutes.js";
+
 dovenv.config();
 
 const app = express();
@@ -83,7 +83,6 @@ app.use("/api/footer/", footerRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/pages/dynamic", pageRoutes);
 app.use("/api/upload", uploadText);
-app.use("/api/contact", servicecontactRoutes);
 
 app.get("/", (req, res) => {
   res.send("E-Commerce API is running...");

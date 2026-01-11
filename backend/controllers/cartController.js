@@ -57,10 +57,9 @@ export const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    res.json({ success: true, cart });
+    return res.json({ success: true, cart });
   } catch (err) {
-    console.error("❌ Error in addToCart:", err);
-    res.status(500).json({ success: false, message: "Server Error" });
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -78,7 +77,6 @@ export const getCartCh = async (req, res) => {
 
     return res.json({ success: true, cart });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -87,7 +85,6 @@ export const getCart = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Fetch user to get wallet balance
     const user = await AuthModel.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -101,8 +98,6 @@ export const getCart = async (req, res) => {
         message: "No products in the cart" 
       });
     }
-
-    // Calculate cart total
     let cartTotal = 0;
     cart.items.forEach(item => {
       if (item.productId && item.productId.price) {
@@ -110,7 +105,6 @@ export const getCart = async (req, res) => {
       }
     });
 
-    // Calculate wallet usage
     const walletBalance = user.walletbalance;
     const walletUsed = Math.min(walletBalance, cartTotal);
     const amountToPay = Math.max(0, cartTotal - walletBalance);
@@ -124,7 +118,6 @@ export const getCart = async (req, res) => {
       walletUsed: walletUsed
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -171,13 +164,12 @@ export const updateCartItem = async (req, res) => {
 
     await cart.populate("items.productId");
 
-    res.json({
+    return res.json({
       success: true,
       cart,
     });
   } catch (error) {
-    console.error("❌ Error updating cart:", error);
-    res.status(500).json({
+  return res.status(500).json({
       success: false,
       message: "Server Error",
     });
@@ -202,13 +194,12 @@ export const removeCartItem = async (req, res) => {
 
     await cart.populate("items.productId");
 
-    res.json({
+   return res.json({
       success: true,
       cart,
     });
   } catch (error) {
-    console.error("❌ Error removing cart item:", error);
-    res.status(500).json({
+return res.status(500).json({
       success: false,
       message: "Server Error",
     });
@@ -219,9 +210,6 @@ export const updateCartAttributes = async (req, res) => {
   try {
     const { itemId, selectedAttributes } = req.body;
     const userId = req.user.id;
-
-    console.log("Updating attributes for item:", itemId);
-    console.log("New attributes:", selectedAttributes);
 
     const cart = await Cart.findOne({ userId: userId });
     if (!cart) {
@@ -252,8 +240,7 @@ export const updateCartAttributes = async (req, res) => {
       cart: updatedCart,
     });
   } catch (error) {
-    console.error("Error updating attributes:", error);
-    res.status(500).json({
+return res.status(500).json({
       success: false,
       message: "Server error while updating attributes",
     });

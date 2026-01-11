@@ -27,7 +27,6 @@ const productStorage = new CloudinaryStorage({
   },
 });
 
-// ✅ Correct way
 export const upload = multer({ storage: productStorage });
 export const uploadbanner = multer({ storage: bannerStorage });
 

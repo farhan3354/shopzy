@@ -1,9 +1,8 @@
 import express from "express";
+import {uploadbanner } from "../middlewares/multermiddleware.js";
 const router = express.Router();
-import { upload } from "./../config/s3Config.js";
 
-// Single image upload endpoint
-router.post("/image", upload.single("image"), (req, res) => {
+router.post("/image", uploadbanner.single("image"), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -12,7 +11,6 @@ router.post("/image", upload.single("image"), (req, res) => {
       });
     }
 
-    // Return the S3 URL
     res.json({
       success: true,
       message: "Image uploaded successfully",
@@ -27,9 +25,7 @@ router.post("/image", upload.single("image"), (req, res) => {
     });
   }
 });
-
-// Multiple images upload endpoint
-router.post("/images", upload.array("images", 10), (req, res) => {
+router.post("/images", uploadbanner.array("images", 10), (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -58,7 +54,6 @@ router.post("/images", upload.array("images", 10), (req, res) => {
   }
 });
 
-// Delete image from S3
 router.delete("/image", async (req, res) => {
   try {
     const { key } = req.body;

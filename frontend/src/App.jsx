@@ -125,7 +125,7 @@ function App() {
               <Route path="coupons" element={<Coupons />} />
               <Route path="messages" element={<ContactMessage />} />
               <Route path="faq" element={<AdminFaqPage />} />
-              <Route path="add-banners" element={<AdminBanner />} />
+              {/* <Route path="add-banners" element={<AdminBanner />} /> */}
               <Route path="footer" element={<FooterManagement />} />
               <Route path="cashbacks" element={<CashbackManagement />} />
               <Route path="email" element={<EmailAnnouncement />} />
