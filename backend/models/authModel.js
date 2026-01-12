@@ -33,10 +33,7 @@ const AuthModelSchema = new mongoose.Schema(
       enum: ["pending", "active", "blocked"],
       default: "pending",
     },
-    walletbalance: {
-      type: Number,
-      default: 1,
-    },
+
     addresses: [
       {
         fullName: { type: String, required: true },

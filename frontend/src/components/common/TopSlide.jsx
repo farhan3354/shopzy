@@ -5,8 +5,7 @@ export default function TopSlide({announcementMessages,currentSlide}) {
     <>
          <div
         style={{
-          background:
-            "radial-gradient(206px 75.13px, #be386e 0%, #8f2a53 80%, #68012a 100%)",
+          background: "#000000",
         }}
       >
         <div className="relative overflow-hidden">

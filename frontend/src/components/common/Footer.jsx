@@ -13,9 +13,6 @@ import {
   FiTruck,
   FiShield,
   FiHelpCircle,
-  FiMessageSquare,
-  FiDownload,
-  FiSmartphone,
   FiArrowUp,
   FiHeart,
 } from "react-icons/fi";
@@ -105,7 +102,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white mt-16">
       <button
         onClick={scrollToTop}
-        className="fixed bottom-4 right-4 z-50 md:hidden w-12 h-12 bg-gradient-to-r from-[#BE386E] to-[#8F2B53] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+        className="fixed bottom-4 right-4 z-50 md:hidden w-12 h-12 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Scroll to top"
       >
         <FiArrowUp className="w-5 h-5" />
@@ -115,7 +112,7 @@ const Footer = () => {
           <div className="grid grid-cols-2 gap-4">
             {features.slice(0, 4).map((feature, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <feature.icon className="w-5 h-5 text-[#BE386E]" />
+                <feature.icon className="w-5 h-5 text-[#0EA5E9]" />
                 <div>
                   <p className="text-sm font-medium">{feature.text}</p>
                   <p className="text-xs text-gray-400">{feature.subtext}</p>
@@ -130,10 +127,10 @@ const Footer = () => {
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 pb-8 border-b border-gray-800">
           <div className="flex-1 max-w-md">
             <Link to="/" className="inline-flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-[#BE386E] to-[#8F2B53] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">S</span>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#BE386E] to-[#8F2B53] bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] bg-clip-text text-transparent">
                 Shopzy
               </span>
             </Link>
@@ -174,7 +171,7 @@ const Footer = () => {
                       <li key={linkIndex}>
                         <Link
                           to={link.url}
-                          className="text-gray-400 hover:text-[#BE386E] transition-colors text-xs sm:text-sm"
+                          className="text-gray-400 hover:text-[#0EA5E9] transition-colors text-xs sm:text-sm"
                         >
                           {link.name}
                         </Link>
@@ -189,7 +186,7 @@ const Footer = () => {
         <div className="py-8 border-b border-gray-800">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <div className="flex items-start space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-lg flex items-center justify-center flex-shrink-0">
                 <FiPhone className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
@@ -198,7 +195,7 @@ const Footer = () => {
                 </h4>
                 <a
                   href="tel:+911800123456"
-                  className="text-gray-400 hover:text-[#BE386E] text-sm sm:text-lg block"
+                  className="text-gray-400 hover:text-[#0EA5E9] text-sm sm:text-lg block"
                 >
                   +91 1800 123 456
                 </a>
@@ -209,7 +206,7 @@ const Footer = () => {
             </div>
 
             <div className="flex items-start space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-lg flex items-center justify-center flex-shrink-0">
                 <FiMail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
@@ -218,7 +215,7 @@ const Footer = () => {
                 </h4>
                 <a
                   href="mailto:support@shopease.com"
-                  className="text-gray-400 hover:text-[#BE386E] text-sm sm:text-base block break-words"
+                  className="text-gray-400 hover:text-[#0EA5E9] text-sm sm:text-base block break-words"
                 >
                   support@shopease.com
                 </a>
@@ -229,7 +226,7 @@ const Footer = () => {
             </div>
 
             <div className="flex items-start space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-lg flex items-center justify-center flex-shrink-0">
                 <FiMapPin className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
@@ -269,7 +266,7 @@ const Footer = () => {
               </Link>
             </div>
             <div className="flex items-center text-gray-500 text-sm">
-              <FiHeart className="w-4 h-4 text-[#BE386E] mr-1" />
+              <FiHeart className="w-4 h-4 text-[#0EA5E9] mr-1" />
               Made with love in UAE
             </div>
           </div>
@@ -277,7 +274,7 @@ const Footer = () => {
       </div>
       <button
         onClick={scrollToTop}
-        className="hidden lg:fixed lg:flex bottom-8 right-8 z-50 w-12 h-12 bg-gradient-to-r from-[#BE386E] to-[#8F2B53] rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+        className="hidden lg:fixed lg:flex bottom-8 right-8 z-50 w-12 h-12 bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] rounded-full items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Scroll to top"
       >
         <FiArrowUp className="w-5 h-5" />

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEmail, emailTemplates } from "../config/email.js";
-import Referal from "../models/referralModel.js";
+
 
 // export const registerForm = async (req, res) => {
 //   try {
@@ -154,20 +154,12 @@ export const registerForm = async (req, res) => {
       password: hashedPassword,
       userRole,
       userStatus: "pending",
-      walletbalance: 0,
+
       verificationToken,
       verificationExpires,
     });
 
-    const referralCode = await Referal.generateReferralCode();
-    await Referal.create({
-      userId: newUser._id,
-      referralCode: referralCode,
-    });
 
-    console.log(
-      `✅ Referral code generated for ${newUser.email}: ${referralCode}`
-    );
 
     const verificationUrl = `${process.env.CLIENT_URL}/verify-account/${verificationToken}`;
     try {
@@ -198,7 +190,7 @@ export const registerForm = async (req, res) => {
         phone: newUser.phone,
         userRole: newUser.userRole,
         userStatus: newUser.userStatus,
-        referralCode: referralCode,
+
       },
     });
   } catch (error) {

@@ -105,17 +105,12 @@ export const getCart = async (req, res) => {
       }
     });
 
-    const walletBalance = user.walletbalance;
-    const walletUsed = Math.min(walletBalance, cartTotal);
-    const amountToPay = Math.max(0, cartTotal - walletBalance);
+
 
     return res.json({ 
       success: true, 
       cart,
-      walletBalance: walletBalance,
-      cartTotal: cartTotal,
-      amountToPay: amountToPay,
-      walletUsed: walletUsed
+      cartTotal: cartTotal
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Server Error" });

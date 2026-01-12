@@ -129,18 +129,17 @@ const WhyLoveUs = () => {
   return (
     <div className="bg-gradient-to-b from-white to-gray-50 py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 mb-4">
-            <FiHeart className="w-6 h-6 text-[#BE386E] animate-pulse" />
-            <span className="text-sm font-semibold text-[#8F2B53] uppercase tracking-wider">
+            <FiHeart className="w-6 h-6 text-[#4A90E2] animate-pulse" />
+            <span className="text-sm font-semibold text-[#4A90E2] uppercase tracking-wider">
               Why People Love Us
             </span>
-            <FiHeart className="w-6 h-6 text-[#BE386E] animate-pulse" />
+            <FiHeart className="w-6 h-6 text-[#4A90E2] animate-pulse" />
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Thousands of Happy Customers
-            <span className="block text-3xl md:text-4xl text-[#8F2B53] mt-2">
+            <span className="block text-3xl md:text-4xl text-[#4A90E2] mt-2">
               Trust Our Services Daily
             </span>
           </h2>
@@ -149,8 +148,6 @@ const WhyLoveUs = () => {
             growing family of satisfied shoppers.
           </p>
         </div>
-
-        {/* Trust Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
           {trustMetrics.map((metric, index) => {
             const Icon = metric.icon;
@@ -159,7 +156,7 @@ const WhyLoveUs = () => {
                 key={index}
                 className="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className="text-3xl md:text-4xl font-bold text-[#8F2B53] mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-[#4A90E2] mb-2">
                   {metric.value}
                 </div>
                 <div className="flex items-center justify-center gap-2 text-gray-600">
@@ -170,8 +167,6 @@ const WhyLoveUs = () => {
             );
           })}
         </div>
-
-        {/* Main Reasons Section */}
         <div className="mb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loveReasons.map((reason, index) => {
@@ -264,9 +259,9 @@ export default WhyLoveUs;
 //       <p className="text-center text-gray-900 text-lg font-semibold mb-2">
 //         Why People Love Us
 //       </p>
-//       <div className="relative w-[70%] mx-auto mb-6">
-//         <div className="border-t border-[#9B3232]"></div>
-//         <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
+// //       <div className="relative w-[70%] mx-auto mb-6">
+//         <div className="border-t border-[#4A90E2]"></div>
+//         <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#4A90E2] rotate-45"></div>
 //       </div>
 //       <div className="relative w-[90%] sm:w-[80%] lg:w-[70%] mx-auto overflow-hidden rounded-lg">
 //         <div

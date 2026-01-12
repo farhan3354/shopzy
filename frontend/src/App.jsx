@@ -49,7 +49,7 @@ import SubcategoryProducts from "./components/SubCategoryProduct";
 import ResendVerification from "./components/Login/ResendVerification";
 import VerifyAccount from "./components/Login/VerifyAccount";
 import AdminPayment from "./components/admindashboard/AdminPayment";
-import CashbackManagement from "./components/admindashboard/CashbackManagement";
+
 import EmailAnnouncement from "./components/admindashboard/EmailAnnouncement";
 import PageList from "./components/PageList";
 import PageForm from "./components/PageForm";
@@ -127,7 +127,7 @@ function App() {
               <Route path="faq" element={<AdminFaqPage />} />
               {/* <Route path="add-banners" element={<AdminBanner />} /> */}
               <Route path="footer" element={<FooterManagement />} />
-              <Route path="cashbacks" element={<CashbackManagement />} />
+
               <Route path="email" element={<EmailAnnouncement />} />
             </Route>
           </Route>

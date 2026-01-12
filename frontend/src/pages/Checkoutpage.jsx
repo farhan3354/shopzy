@@ -26,10 +26,7 @@ export default function Checkout() {
   const [fetchingAddresses, setFetchingAddresses] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [amountToPay, setAmountToPay] = useState(0);
-  const [walletUsed, setWalletUsed] = useState(0);
-  const [useWallet, setUseWallet] = useState(true);
+
 
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -102,9 +99,6 @@ export default function Checkout() {
 
       if (res.data.success) {
         setCart(res.data.cart);
-        setWalletBalance(res.data.walletBalance || 0);
-        setAmountToPay(res.data.amountToPay || 0);
-        setWalletUsed(res.data.walletUsed || 0);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -261,28 +255,10 @@ export default function Checkout() {
         ? appliedCoupon.discountAmount
         : 0;
 
-    let total = subtotal - discount;
-
-    if (useWallet && walletBalance > 0) {
-      const walletDeduction = Math.min(walletBalance, total);
-      total = Math.max(0, total - walletDeduction);
-    }
-
-    return total;
+    return Math.max(0, subtotal - discount);
   };
 
-  const getWalletUsedAmount = () => {
-    if (!useWallet) return 0;
 
-    const subtotal = calculateCartSubtotal();
-    const discount =
-      appliedCoupon && appliedCoupon.coupantype !== "cashback"
-        ? appliedCoupon.discountAmount
-        : 0;
-
-    const totalBeforeWallet = subtotal - discount;
-    return Math.min(walletBalance, totalBeforeWallet);
-  };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -655,16 +631,10 @@ export default function Checkout() {
       console.log("🔄 Creating COD order...");
 
       let couponCodeToSend = null;
-      let referralCodeToSend = null;
 
       if (appliedCoupon) {
-        if (appliedCoupon.isReferral) {
-          referralCodeToSend = appliedCoupon.code;
-          console.log(`🔗 Sending referral code: ${referralCodeToSend}`);
-        } else {
           couponCodeToSend = appliedCoupon.code;
           console.log(`🎫 Sending coupon code: ${couponCodeToSend}`);
-        }
       }
 
       const headers = {
@@ -677,9 +647,6 @@ export default function Checkout() {
         {
           shippingAddress: selectedAddress,
           couponCode: couponCodeToSend,
-          referralCode: referralCodeToSend,
-          useWallet: useWallet,
-          walletAmountUsed: getWalletUsedAmount(),
         },
         { headers }
       );
@@ -768,16 +735,10 @@ export default function Checkout() {
       console.log("🔄 Creating payment with cart items...");
 
       let couponCodeToSend = null;
-      let referralCodeToSend = null;
 
       if (appliedCoupon) {
-        if (appliedCoupon.isReferral) {
-          referralCodeToSend = appliedCoupon.code;
-          console.log(`🔗 Sending referral code: ${referralCodeToSend}`);
-        } else {
           couponCodeToSend = appliedCoupon.code;
           console.log(`🎫 Sending coupon code: ${couponCodeToSend}`);
-        }
       }
 
       const headers = {
@@ -790,9 +751,6 @@ export default function Checkout() {
         {
           shippingAddress: selectedAddress,
           couponCode: couponCodeToSend,
-          referralCode: referralCodeToSend,
-          useWallet: useWallet,
-          walletAmountUsed: getWalletUsedAmount(),
         },
         { headers }
       );
@@ -1461,44 +1419,6 @@ export default function Checkout() {
                     <span>-₹{appliedCoupon.discountAmount}</span>
                   </div>
                 )}
-                {walletBalance > 0 && (
-                  <>
-                    <div className="border-t border-b py-3 my-3">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold flex items-center">
-                          <FiTruck className="mr-2 text-blue-600" />
-                          Wallet Balance
-                        </span>
-                        <span className="text-green-600 font-semibold">
-                          ₹{walletBalance}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center mb-2">
-                        <input
-                          type="checkbox"
-                          id="useWallet"
-                          checked={useWallet}
-                          onChange={(e) => setUseWallet(e.target.checked)}
-                          className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                        />
-                        <label
-                          htmlFor="useWallet"
-                          className="text-sm text-gray-700"
-                        >
-                          Use wallet balance
-                        </label>
-                      </div>
-
-                      {useWallet && getWalletUsedAmount() > 0 && (
-                        <div className="flex justify-between text-blue-600">
-                          <span>Wallet used</span>
-                          <span>-₹{getWalletUsedAmount()}</span>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
 
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -1512,27 +1432,6 @@ export default function Checkout() {
                   <span>Total Amount to Pay</span>
                   <span>₹{calculateCartTotal()}</span>
                 </div>
-                {useWallet && walletBalance > getWalletUsedAmount() && (
-                  <p className="text-blue-600 text-sm">
-                    Remaining wallet balance: ₹
-                    {walletBalance - getWalletUsedAmount()}
-                  </p>
-                )}
-
-                {!useWallet && walletBalance > 0 && (
-                  <p className="text-orange-600 text-sm">
-                    You can save ₹
-                    {Math.min(walletBalance, calculateCartSubtotal())} by using
-                    your wallet balance
-                  </p>
-                )}
-
-                {appliedCoupon && appliedCoupon.coupantype === "cashback" && (
-                  <p className="text-blue-600 text-sm text-center">
-                    You'll get ₹{appliedCoupon.discountAmount} cashback after
-                    order completion!
-                  </p>
-                )}
 
                 {appliedCoupon && appliedCoupon.coupantype !== "cashback" && (
                   <p className="text-green-600 text-sm text-center">

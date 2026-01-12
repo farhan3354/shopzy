@@ -10,15 +10,14 @@ import {
 } from "react-icons/fi";
 import { HiFire, HiTag } from "react-icons/hi";
 
-const BannerSection = () => {
-  const [timer, setTimer] = useState(86400); // 24 hours in seconds
+const ShareAndEarn = () => {
+  const [timer, setTimer] = useState(86400); 
   const [stats, setStats] = useState({
     happyCustomers: 0,
     ordersDelivered: 0,
     productsSold: 0,
   });
 
-  // Format timer
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -28,13 +27,11 @@ const BannerSection = () => {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Animate numbers
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 86400));
     }, 1000);
 
-    // Animate stats
     const statsInterval = setTimeout(() => {
       setStats({
         happyCustomers: 12500,
@@ -88,38 +85,29 @@ const BannerSection = () => {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Main CTA Banner */}
       <div className="relative py-16 md:py-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#8F2B53] via-[#BE386E] to-[#8F2B53] opacity-95"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#4A90E2] via-[#357ABD] to-[#2C3E50] opacity-95"></div>
 
-        {/* Animated background elements */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-32 -translate-y-32 animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-48 translate-y-48"></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 animate-spin-slow"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full text-white mb-8">
               <HiFire className="w-5 h-5 animate-bounce" />
               <span className="font-semibold">LIMITED TIME OFFER</span>
             </div>
-
-            {/* Main Heading */}
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Don't Miss Out On
               <span className="block text-yellow-300 drop-shadow-lg">
                 Incredible Deals!
               </span>
             </h2>
-
-            {/* Subtitle */}
             <p className="text-xl text-white/90 max-w-3xl mx-auto mb-10">
               Shop now and enjoy exclusive discounts, free shipping, and premium
               quality products. Your perfect shopping experience starts here.
             </p>
-
-            {/* Timer Section */}
             <div className="mb-12">
               <div className="inline-flex items-center gap-4 px-6 py-4 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
                 <FiClock className="w-6 h-6 text-white" />
@@ -142,12 +130,10 @@ const BannerSection = () => {
                   ))}
               </div>
             </div>
-
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link
-                to="/products"
-                className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-[#8F2B53] rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                to="/product"
+                className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-[#4A90E2] rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 <FiShoppingBag className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                 <span>Shop Now & Save Big</span>
@@ -161,8 +147,6 @@ const BannerSection = () => {
                 <span>View All Deals</span>
               </Link>
             </div>
-
-            {/* Trust Features */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {trustFeatures.map((feature, index) => {
                 const Icon = feature.icon;
@@ -189,45 +173,41 @@ const BannerSection = () => {
           </div>
         </div>
       </div>
-
-      {/* Stats Section */}
       <div className="bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
-              <div className="text-4xl md:text-5xl font-bold text-[#8F2B53] mb-2">
+              <div className="text-4xl md:text-5xl font-bold text-[#4A90E2] mb-2">
                 {stats.happyCustomers.toLocaleString()}+
               </div>
               <p className="text-gray-600 font-medium">Happy Customers</p>
-              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-full mx-auto"></div>
+              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] rounded-full mx-auto"></div>
             </div>
 
             <div className="text-center p-6">
-              <div className="text-4xl md:text-5xl font-bold text-[#8F2B53] mb-2">
+              <div className="text-4xl md:text-5xl font-bold text-[#4A90E2] mb-2">
                 {stats.ordersDelivered.toLocaleString()}+
               </div>
               <p className="text-gray-600 font-medium">Orders Delivered</p>
-              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#BE386E] to-[#8F2B53] rounded-full mx-auto"></div>
+              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#357ABD] to-[#4A90E2] rounded-full mx-auto"></div>
             </div>
 
             <div className="text-center p-6">
-              <div className="text-4xl md:text-5xl font-bold text-[#8F2B53] mb-2">
+              <div className="text-4xl md:text-5xl font-bold text-[#4A90E2] mb-2">
                 {stats.productsSold.toLocaleString()}+
               </div>
               <p className="text-gray-600 font-medium">Products Sold</p>
-              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-full mx-auto"></div>
+              <div className="mt-3 h-1 w-20 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] rounded-full mx-auto"></div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Special Offers */}
       <div className="bg-gradient-to-r from-gray-50 to-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f6e9ee] rounded-full mb-4">
-              <HiFire className="w-5 h-5 text-[#8F2B53]" />
-              <span className="font-semibold text-[#8F2B53]">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E3F2FD] rounded-full mb-4">
+              <HiFire className="w-5 h-5 text-[#4A90E2]" />
+              <span className="font-semibold text-[#4A90E2]">
                 SPECIAL OFFERS
               </span>
             </div>
@@ -243,10 +223,10 @@ const BannerSection = () => {
             {offers.map((offer) => (
               <div
                 key={offer.id}
-                className="group bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-[#8F2B53] hover:shadow-xl transition-all"
+                className="group bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-[#4A90E2] hover:shadow-xl transition-all"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] rounded-xl flex items-center justify-center flex-shrink-0">
                     <FiGift className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -256,11 +236,11 @@ const BannerSection = () => {
                     <div className="flex items-center justify-between">
                       <div className="bg-gray-100 px-4 py-2 rounded-lg">
                         <span className="text-sm text-gray-600">Use code:</span>
-                        <span className="font-bold text-[#8F2B53] ml-2">
+                        <span className="font-bold text-[#4A90E2] ml-2">
                           {offer.code}
                         </span>
                       </div>
-                      <button className="text-[#8F2B53] font-semibold hover:text-[#BE386E] transition-colors">
+                      <button className="text-[#4A90E2] font-semibold hover:text-[#357ABD] transition-colors">
                         Copy
                       </button>
                     </div>
@@ -269,9 +249,7 @@ const BannerSection = () => {
               </div>
             ))}
           </div>
-
-          {/* App Download Banner */}
-          <div className="mt-12 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-3xl p-8 md:p-10">
+          <div className="mt-12 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] rounded-3xl p-8 md:p-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               <div className="text-center lg:text-left">
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
@@ -303,7 +281,7 @@ const BannerSection = () => {
                   <div className="w-32 h-32 bg-white rounded-2xl flex items-center justify-center">
                     <div className="text-center">
                       <div className="text-4xl mb-2">🛍️</div>
-                      <div className="font-bold text-[#8F2B53]">ShopEase</div>
+                      <div className="font-bold text-[#4A90E2]">Marotix</div>
                     </div>
                   </div>
                 </div>
@@ -315,8 +293,6 @@ const BannerSection = () => {
           </div>
         </div>
       </div>
-
-      {/* Final CTA */}
       <div className="bg-white py-12 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -329,14 +305,14 @@ const BannerSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/products"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-full font-bold hover:shadow-xl hover:scale-105 transition-all"
+                to="/product"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-full font-bold hover:shadow-xl hover:scale-105 transition-all"
               >
                 Start Shopping Now
               </Link>
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#8F2B53] text-[#8F2B53] rounded-full font-bold hover:bg-[#8F2B53] hover:text-white transition-all"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#4A90E2] text-[#4A90E2] rounded-full font-bold hover:bg-[#4A90E2] hover:text-white transition-all"
               >
                 Create Free Account
               </Link>
@@ -366,100 +342,4 @@ const BannerSection = () => {
   );
 };
 
-export default BannerSection;
-
-// import React, { useEffect, useState } from "react";
-// import api from "../../../utils/api";
-
-// export default function ShareAndEarn() {
-//   const [banners, setBanners] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     const fetchCategoryBanners = async () => {
-//       try {
-//         setLoading(true);
-//         const res = await api.get("/banners");
-//         const categoryBanners = res.data.data.filter(
-//           (b) => b.type === "center"
-//         );
-//         setBanners(categoryBanners);
-//       } catch (err) {
-//         console.error("Error fetching banners:", err);
-//         setError("Failed to load banners");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchCategoryBanners();
-//   }, []);
-
-//   if (loading) {
-//     return (
-//       <div className="mt-8 animate-fade-in">
-//         <p className="text-center text-gray-900 text-lg font-medium mb-2">
-//           Share and Earn
-//         </p>
-//         <div className="relative w-[70%] mx-auto mb-6">
-//           <div className="border-t border-[#9B3232]"></div>
-//           <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
-//         </div>
-//         <div className="flex flex-wrap justify-center gap-4 px-3">
-//           <div className="flex-1 basis-[calc(50%-16px)] rounded-lg overflow-hidden shadow-md">
-//             <div className="bg-gray-200 animate-pulse h-48 rounded-lg"></div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="mt-8 animate-fade-in">
-//         <p className="text-center text-gray-900 text-lg font-medium mb-2">
-//           Share and Earn
-//         </p>
-//         <div className="text-center text-red-500 py-4">{error}</div>
-//       </div>
-//     );
-//   }
-
-//   if (banners.length === 0) return null;
-
-//   return (
-//     <div className="mt-8 animate-fade-in">
-//       <p className="text-center text-gray-900 text-lg font-medium mb-2">
-//         Share and Earn
-//       </p>
-//       <div className="relative w-[70%] mx-auto mb-6">
-//         <div className="border-t border-[#9B3232]"></div>
-//         <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
-//       </div>
-//       <div className="flex flex-wrap justify-center gap-4 px-3">
-//         {banners.map((banner) => (
-//           <div
-//             key={banner._id}
-//             className="flex-1 basis-[calc(50%-16px)] min-w-[300px] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition"
-//           >
-//             <a
-//               href={banner.link || "#"}
-//               target={banner.link ? "_blank" : "_self"}
-//               rel="noopener noreferrer"
-//               className="block h-full"
-//             >
-//               <div className="flex justify-center items-center h-full">
-//                 <img
-//                   src={banner.image}
-//                   alt={banner.name}
-//                   className="mx-auto w-full object-cover rounded-none"
-//                   loading="lazy"
-//                 />
-//               </div>
-//             </a>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
+export default ShareAndEarn;

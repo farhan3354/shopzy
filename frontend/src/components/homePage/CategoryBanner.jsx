@@ -17,7 +17,6 @@ const CategoryBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [timer, setTimer] = useState(86400);
 
-  // Hero slides
   const heroSlides = [
     {
       id: 1,
@@ -28,7 +27,7 @@ const CategoryBanner = () => {
       image:
         "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
       buttonText: "Shop Diwali Collection",
-      color: "from-[#BE386E] via-[#8F2B53] to-[#68012A]",
+      color: "from-[#4A90E2] via-[#357ABD] to-[#2C3E50]",
       badge: "🔥 Limited Time",
     },
     {
@@ -57,7 +56,6 @@ const CategoryBanner = () => {
     },
   ];
 
-  // Features
   const features = [
     {
       icon: FiTruck,
@@ -85,47 +83,6 @@ const CategoryBanner = () => {
     },
   ];
 
-  // Popular categories
-  // const popularCategories = [
-  //   {
-  //     name: "Electronics",
-  //     icon: "📱",
-  //     count: "1,234 items",
-  //     color: "bg-blue-100 text-blue-600",
-  //   },
-  //   {
-  //     name: "Fashion",
-  //     icon: "👗",
-  //     count: "2,567 items",
-  //     color: "bg-pink-100 text-pink-600",
-  //   },
-  //   {
-  //     name: "Home & Living",
-  //     icon: "🏠",
-  //     count: "1,890 items",
-  //     color: "bg-green-100 text-green-600",
-  //   },
-  //   {
-  //     name: "Beauty",
-  //     icon: "💄",
-  //     count: "987 items",
-  //     color: "bg-purple-100 text-purple-600",
-  //   },
-  //   {
-  //     name: "Sports",
-  //     icon: "⚽",
-  //     count: "654 items",
-  //     color: "bg-orange-100 text-orange-600",
-  //   },
-  //   {
-  //     name: "Books",
-  //     icon: "📚",
-  //     count: "2,345 items",
-  //     color: "bg-yellow-100 text-yellow-600",
-  //   },
-  // ];
-
-  // Timer countdown
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 86400));
@@ -133,7 +90,6 @@ const CategoryBanner = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto slide hero
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -141,7 +97,6 @@ const CategoryBanner = () => {
     return () => clearInterval(interval);
   }, [heroSlides.length]);
 
-  // Format timer
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -178,7 +133,7 @@ const CategoryBanner = () => {
                     {slide.title}
                   </h1>
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
-                    <span className="bg-gradient-to-r from-[#BE386E] to-[#8F2B53] bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-[#4A90E2] to-[#FFD166] bg-clip-text text-transparent">
                       {slide.subtitle}
                     </span>
                   </h2>
@@ -186,7 +141,7 @@ const CategoryBanner = () => {
                     {slide.description}
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    <Link to="/product" className="group inline-flex items-center px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-full font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300">
+                    <Link to="/product" className="group inline-flex items-center px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-full font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300">
                       {slide.buttonText}
                       <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
@@ -217,7 +172,7 @@ const CategoryBanner = () => {
           ))}
         </div>
         <div className="absolute top-6 right-6 z-30 hidden lg:block">
-          <div className="bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-xl shadow-2xl p-4 text-center">
+          <div className="bg-gradient-to-r from-[#000000] to-[#2C3E50] rounded-xl shadow-2xl p-4 text-center">
             <div className="flex items-center gap-2 text-white mb-2">
               <FiClock className="w-4 h-4" />
               <span className="text-sm font-medium">Flash Sale Ends In</span>
@@ -256,208 +211,9 @@ const CategoryBanner = () => {
           })}
         </div>
       </div>
-      {/* <div className="max-w-7xl mx-auto px-4 mt-12 md:mt-16">
-        <div className="mb-6 md:mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            🛍️ Popular Categories
-          </h2>
-          <p className="text-gray-600">
-            Browse our most loved product categories
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {popularCategories.map((category, index) => (
-            <Link
-              key={index}
-              to={`/category/${category.name
-                .toLowerCase()
-                .replace(/ & /g, "-")
-                .replace(/ /g, "-")}`}
-              className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-gray-100 p-6 text-center hover:-translate-y-1 transition-all duration-300"
-            >
-              <div
-                className={`w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition-transform`}
-              >
-                {category.icon}
-              </div>
-              <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
-              <p className="text-sm text-gray-500">{category.count}</p>
-              <div className="mt-3 h-1 w-8 bg-gray-200 rounded-full mx-auto group-hover:w-12 group-hover:bg-[#8F2B53] transition-all duration-300" />
-            </Link>
-          ))}
-        </div>
-      </div> */}
+     
     </div>
   );
 };
 
 export default CategoryBanner;
-
-// import React, { useState, useEffect } from "react";
-// import api from "../../../utils/api";
-
-// export default function CategoryBanner() {
-//   const [categories, setCategories] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     const fetchLatestCategories = async () => {
-//       try {
-//         setLoading(true);
-//         const response = await api.get("/categories/latest");
-//         setCategories(response.data.categories || []);
-//       } catch (err) {
-//         console.error("Failed to fetch categories:", err);
-//         setError("Failed to load categories");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchLatestCategories();
-//   }, []);
-
-//   if (loading) {
-//     return (
-//       <div className="mb-2 px-3 mt-6">
-//         <p className="text-center text-gray-900 text-lg font-normal">
-//           <span className="text-2xl">Shop by category</span>
-//         </p>
-//         <div className="w-[70%] mx-auto my-4">
-//           <div className="relative">
-//             <div className="border-t border-[#9B3232]"></div>
-//             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
-//           </div>
-//         </div>
-//         <div className="flex gap-1">
-//           <div className="flex-1 min-w-0">
-//             <div className="bg-gray-200 animate-pulse rounded-xl h-[500px] lg:h-[500px]"></div>
-//           </div>
-//           <div className="flex-1 min-w-0 flex flex-col gap-1">
-//             <div className="bg-gray-200 animate-pulse rounded-xl h-[245px]"></div>
-//             <div className="bg-gray-200 animate-pulse rounded-xl h-[245px]"></div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="mb-2 px-3 mt-6">
-//         <p className="text-center text-gray-900 text-lg font-normal">
-//           <span className="text-2xl">Shop by category</span>
-//         </p>
-//         <div className="text-center text-red-500 py-8">{error}</div>
-//       </div>
-//     );
-//   }
-
-//   if (categories.length === 0) {
-//     return null;
-//   }
-
-//   const displayCategories = categories.slice(0, 3);
-
-//   return (
-//     <div className="mb-2 px-3 mt-6">
-//       <p className="text-center text-gray-900 text-lg font-normal">
-//         <span className="text-2xl">Shop by category</span>
-//       </p>
-
-//       <div className="w-[70%] mx-auto my-4">
-//         <div className="relative">
-//           <div className="border-t border-[#9B3232]"></div>
-//           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
-//         </div>
-//       </div>
-
-//       <div className="flex gap-1">
-//         <div className="flex-1 min-w-0">
-//           <div className="m-0">
-//             <a href={`/collections/${displayCategories[0]?.slug || "#"}`}>
-//               <div className="flex justify-center h-full">
-//                 <img
-//                   alt={displayCategories[0]?.name || "Category"}
-//                   src={displayCategories[0]?.image}
-//                   className="mx-auto w-full h-auto lg:rounded-xl lg:h-[500px] object-cover hover:opacity-95 transition-opacity duration-300"
-//                   loading="lazy"
-//                 />
-//               </div>
-//             </a>
-//           </div>
-//         </div>
-//         <div className="flex-1 min-w-0 flex flex-col gap-1">
-//           {displayCategories[1] && (
-//             <div className="m-0">
-//               <a href={`/collections/${displayCategories[1]?.slug || "#"}`}>
-//                 <div className="flex justify-center h-full">
-//                   <img
-//                     alt={displayCategories[1]?.name || "Category"}
-//                     src={displayCategories[1]?.image}
-//                     className="mx-auto w-full h-auto lg:rounded-xl lg:h-[245px] object-cover hover:opacity-95 transition-opacity duration-300"
-//                     loading="lazy"
-//                   />
-//                 </div>
-//               </a>
-//             </div>
-//           )}
-
-//           {displayCategories[2] && (
-//             <div className="m-0">
-//               <a href={`/collections/${displayCategories[2]?.slug || "#"}`}>
-//                 <div className="flex justify-center h-full">
-//                   <img
-//                     alt={displayCategories[2]?.name || "Category"}
-//                     src={displayCategories[2]?.image}
-//                     className="mx-auto w-full h-auto lg:rounded-xl lg:h-[245px] object-cover hover:opacity-95 transition-opacity duration-300"
-//                     loading="lazy"
-//                   />
-//                 </div>
-//               </a>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-{
-  /* CTA Banner */
-}
-// <div className="max-w-7xl mx-auto px-4 mt-12 md:mt-16">
-//   <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#8F2B53] via-[#BE386E] to-[#8F2B53]">
-//     {/* Animated background elements */}
-//     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
-//     <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full translate-y-48 -translate-x-48" />
-
-//     <div className="relative z-10 p-8 md:p-12 text-center">
-//       <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-//         Subscribe & Get 20% OFF
-//       </h2>
-//       <p className="text-gray-200 mb-8 max-w-2xl mx-auto text-lg">
-//         Subscribe to our newsletter and be the first to know about
-//         exclusive deals, new arrivals, and special offers.
-//       </p>
-//       <div className="max-w-md mx-auto">
-//         <div className="flex flex-col sm:flex-row gap-4">
-//           <input
-//             type="email"
-//             placeholder="Enter your email address"
-//             className="flex-1 px-6 py-4 rounded-full focus:outline-none focus:ring-4 focus:ring-white/30 text-gray-900"
-//           />
-//           <button className="px-8 py-4 bg-white text-[#8F2B53] rounded-full font-bold hover:bg-gray-100 transition-colors">
-//             Subscribe Now
-//           </button>
-//         </div>
-//         <p className="text-sm text-gray-300 mt-4">
-//           By subscribing, you agree to our Privacy Policy and consent to
-//           receive updates.
-//         </p>
-//       </div>
-//     </div>
-//   </div>
-// </div>

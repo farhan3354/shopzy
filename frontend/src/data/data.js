@@ -152,10 +152,6 @@ export const adminsidebarmenu = [
     icon: "MdListAlt",
     to: "/admin-dashboard/payment",
   } ,{
-    title: "Cashbask",
-    icon: "MdListAlt",
-    to: "/admin-dashboard/cashbacks",
-  } ,{
     title: "Footer",
     icon: "MdInventory",
     to: "/admin-dashboard/footer",

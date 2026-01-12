@@ -1,7 +1,7 @@
 import Coupon from "../models/couponModel.js";
 import CouponUsage from "../models/CouponUsage.js";
-import Cashback from "../models/cashbackModel.js";
 import AuthModel from "../models/authModel.js";
+
 
 export const createCoupon = async (req, res) => {
   try {
@@ -38,20 +38,9 @@ export const createCoupon = async (req, res) => {
         .status(409)
         .json({ success: false, message: "All the fields are required" });
     }
-    if (coupantype === "cashback") {
-      if (discountType !== "percentage") {
-        return res.status(400).json({
-          success: false,
-          message: "Cashback coupons must use percentage discount type",
-        });
-      }
-      if (!maxDiscountAmount) {
-        return res.status(400).json({
-          success: false,
-          message: "Cashback coupons require max discount amount",
-        });
-      }
-    }
+
+    // Validate cashback coupon
+
 
     const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
     if (existingCoupon) {
@@ -104,263 +93,150 @@ export const createCoupon = async (req, res) => {
   }
 };
 
-export const createCashbackRecord = async (order, appliedCoupon) => {
-  try {
-    if (appliedCoupon && appliedCoupon.coupantype === "cashback") {
-      const coupon = await Coupon.findById(
-        appliedCoupon._id || appliedCoupon.couponId
-      );
+// function validateCouponApplicability(coupon, cartItems) {
+//   if (coupon.applicableTo === "all") return true;
 
-      if (coupon && coupon.coupantype === "cashback") {
-        const cashbackAmount = calculateDiscountAmount(coupon, order.subtotal);
+//   if (coupon.applicableTo === "categories") {
+//     return cartItems.some((item) =>
+//       coupon.categories.includes(item.productId?.category)
+//     );
+//   }
 
-        const existingCashback = await Cashback.findOne({ orderId: order._id });
-        if (existingCashback) {
-          console.log(
-            "💰 Cashback record already exists for order:",
-            order.orderNumber
-          );
-          return existingCashback;
-        }
+//   if (coupon.applicableTo === "subcategories") {
+//     return cartItems.some((item) =>
+//       coupon.subcategories.includes(item.productId?.subcategory)
+//     );
+//   }
 
-        const cashbackRecord = new Cashback({
-          userId: order.userId,
-          orderId: order._id,
-          couponCode: coupon.code,
-          couponId: coupon._id,
-          cashbackAmount: cashbackAmount,
-          originalOrderAmount: order.subtotal,
-          status: "pending",
-        });
+//   return false;
+// }
 
-        await cashbackRecord.save();
-        console.log(
-          `💰 Cashback record created: ₹${cashbackAmount} for order ${order.orderNumber}`
-        );
+// export const validateCoupon = async (req, res) => {
+//   try {
+//     const {
+//       code,
+//       cartTotal,
+//       cartItems = [],
+//       cartLength,
+//       totalQuantity,
+//     } = req.body;
+//     const userId = req.user.id;
 
-        return cashbackRecord;
-      }
-    }
-    return null;
-  } catch (error) {
-    console.error("Error creating cashback record:", error);
-    throw error;
-  }
-};
+//     if (!code) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Coupon code is required",
+//       });
+//     }
 
-export const rejectCashback = async (req, res) => {
-  try {
-    const { cashbackId } = req.params;
-    const { rejectionReason } = req.body;
-    const adminId = req.user.id;
+//     const coupon = await Coupon.findOne({
+//       code: code.toUpperCase(),
+//       isActive: true,
+//       startDate: { $lte: new Date() },
+//       endDate: { $gte: new Date() },
+//     });
 
-    const cashback = await Cashback.findById(cashbackId);
+//     if (!coupon) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Invalid or expired coupon code",
+//       });
+//     }
 
-    if (!cashback) {
-      return res.status(404).json({
-        success: false,
-        message: "Cashback record not found",
-      });
-    }
+//     // For cashback coupons, ensure they are percentage type
+//     if (
+//       coupon.coupantype === "cashback" &&
+//       coupon.discountType !== "percentage"
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid cashback coupon configuration",
+//       });
+//     }
 
-    if (cashback.status !== "pending") {
-      return res.status(400).json({
-        success: false,
-        message: `Cashback is already ${cashback.status}`,
-      });
-    }
+//     if (
+//       coupon.totalUsageLimit &&
+//       coupon.currentUsageCount >= coupon.totalUsageLimit
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Coupon usage limit reached globally",
+//       });
+//     }
 
-    cashback.status = "rejected";
-    cashback.approvedBy = adminId;
-    cashback.approvedAt = new Date();
-    cashback.rejectionReason = rejectionReason || "No reason provided";
-    await cashback.save();
+//     const userUsageCount = await CouponUsage.countDocuments({
+//       couponCode: coupon.code,
+//       userId,
+//     });
 
-    return res.json({
-      success: true,
-      message: "Cashback rejected successfully",
-      cashback: {
-        _id: cashback._id,
-        status: cashback.status,
-        rejectionReason: cashback.rejectionReason,
-      },
-    });
-  } catch (error) {
-    console.error("Reject cashback error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to reject cashback",
-    });
-  }
-};
+//     if (userUsageCount >= coupon.perUserLimit) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "You have already used this coupon the maximum allowed times",
+//       });
+//     }
 
-export const getAllCashbacks = async (req, res) => {
-  try {
-    const { status, page = 1, limit = 10 } = req.query;
+//     // Check minimum order amount
+//     if (cartTotal < coupon.minimumOrderAmount) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Minimum order amount must be ₹${coupon.minimumOrderAmount} to use this coupon.`,
+//       });
+//     }
 
-    const query = {};
-    if (status) query.status = status;
+//     // Check minimum quantity
+//     if (totalQuantity < coupon.minmumOrderQuanitity) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Minimum ${coupon.minmumOrderQuanitity} items required to use this coupon.`,
+//       });
+//     }
 
-    const cashbacks = await Cashback.find(query)
-      .populate("userId", "name email")
-      .populate("orderId", "orderNumber totalAmount")
-      .populate("approvedBy", "name email")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+//     if (!validateCouponApplicability(coupon, cartItems)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "This coupon does not apply to your cart items",
+//       });
+//     }
 
-    const total = await Cashback.countDocuments(query);
+//     const discountAmount = calculateDiscountAmount(coupon, cartTotal);
 
-    return res.json({
-      success: true,
-      cashbacks,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    });
-  } catch (error) {
-    console.error("Get cashbacks error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch cashbacks",
-    });
-  }
-};
+//     // ✅ FIX: For cashback coupons, final amount doesn't include discount
+//     const finalAmount =
+//       coupon.coupantype === "cashback"
+//         ? cartTotal // No discount applied at checkout for cashback
+//         : cartTotal - discountAmount; // Normal discount for regular coupons
 
-export const getUserCashbacks = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { page = 1, limit = 10 } = req.query;
+//     return res.json({
+//       success: true,
+//       message: "Coupon validated successfully",
+//       coupon: {
+//         code: coupon.code,
+//         name: coupon.name,
+//         description: coupon.description,
+//         discountType: coupon.discountType,
+//         discountValue: coupon.discountValue,
+//         discountAmount,
+//         finalAmount,
+//         perUserLimit: coupon.perUserLimit,
+//         remainingUserLimit: coupon.perUserLimit - userUsageCount,
+//         coupantype: coupon.coupantype, // ✅ IMPORTANT: Include coupantype
+//         isCashback: coupon.coupantype === "cashback",
+//         maxDiscountAmount: coupon.maxDiscountAmount,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Validate coupon error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to validate coupon",
+//     });
+//   }
+// };
 
-    const cashbacks = await Cashback.find({ userId })
-      .populate("orderId", "orderNumber totalAmount createdAt")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
 
-    const total = await Cashback.countDocuments({ userId });
 
-    return res.json({
-      success: true,
-      cashbacks,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    });
-  } catch (error) {
-    console.error("Get user cashbacks error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch cashback history",
-    });
-  }
-};
-
-export const approveCashback = async (req, res) => {
-  try {
-    const { cashbackId } = req.params;
-    const adminId = req.user.id;
-
-    const cashback = await Cashback.findById(cashbackId)
-      .populate("userId", "name email walletbalance")
-      .populate("couponId");
-
-    if (!cashback) {
-      return res.status(404).json({
-        success: false,
-        message: "Cashback record not found",
-      });
-    }
-
-    if (cashback.status !== "pending") {
-      return res.status(400).json({
-        success: false,
-        message: `Cashback is already ${cashback.status}`,
-      });
-    }
-    cashback.status = "approved";
-    cashback.approvedBy = adminId;
-    cashback.approvedAt = new Date();
-    await cashback.save();
-
-    console.log(
-      `💰 Cashback approved: ₹${cashback.cashbackAmount} for user ${cashback.userId.email}`
-    );
-
-    return res.json({
-      success: true,
-      message: "Cashback approved successfully",
-      cashback: {
-        _id: cashback._id,
-        cashbackAmount: cashback.cashbackAmount,
-        status: cashback.status,
-        approvedAt: cashback.approvedAt,
-        userId: cashback.userId,
-        orderId: cashback.orderId,
-      },
-      note: "Cashback amount will be credited to user wallet separately",
-    });
-  } catch (error) {
-    console.error("Approve cashback error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to approve cashback",
-    });
-  }
-};
-
-export const creditCashbackToWallet = async (req, res) => {
-  try {
-    const { cashbackId } = req.params;
-    const adminId = req.user.id;
-
-    const cashback = await Cashback.findById(cashbackId).populate(
-      "userId",
-      "name email walletbalance"
-    );
-
-    if (!cashback) {
-      return res.status(404).json({
-        success: false,
-        message: "Cashback record not found",
-      });
-    }
-
-    if (cashback.status !== "approved") {
-      return res.status(400).json({
-        success: false,
-        message: "Cashback must be approved before crediting",
-      });
-    }
-    const user = await AuthModel.findById(cashback.userId.id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-    cashback.status = "credited";
-    cashback.creditedAt = new Date();
-    await cashback.save();
-
-    return res.json({
-      success: true,
-      message: `Cashback of ₹${cashback.cashbackAmount} credited to user wallet`,
-      cashback: {
-        _id: cashback._id,
-        cashbackAmount: cashback.cashbackAmount,
-        status: cashback.status,
-        creditedAt: cashback.creditedAt,
-      },
-    });
-  } catch (error) {
-    console.error("Credit cashback error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to credit cashback",
-    });
-  }
-};
+// EXISTING FUNCTIONS (keep your existing ones)
 
 export const getAllCoupons = async (req, res) => {
   try {
@@ -457,6 +333,8 @@ export const deleteCoupon = async (req, res) => {
     });
   }
 };
+
+// Helper function to calculate discount amount
 const calculateDiscountAmount = (coupon, cartTotal) => {
   let discountAmount = 0;
 
@@ -473,7 +351,7 @@ const calculateDiscountAmount = (coupon, cartTotal) => {
   return Math.round(discountAmount * 100) / 100;
 };
 
-import Referral from "../models/referralModel.js";
+
 
 export const validateCoupon = async (req, res) => {
   try {
@@ -492,6 +370,8 @@ export const validateCoupon = async (req, res) => {
         message: "Coupon code is required",
       });
     }
+
+    // First check if it's a regular coupon
     const coupon = await Coupon.findOne({
       code: code.toUpperCase(),
       isActive: true,
@@ -500,8 +380,11 @@ export const validateCoupon = async (req, res) => {
     });
 
     if (coupon) {
+      // Handle regular coupon validation
       return handleRegularCoupon(coupon, req, res);
     }
+
+    // If not a regular coupon, check if it's a referral code
     const referral = await Referral.findOne({
       referralCode: code.toUpperCase(),
       isActive: true,
@@ -510,6 +393,8 @@ export const validateCoupon = async (req, res) => {
     if (referral) {
       return handleReferralCode(referral, userId, cartTotal, res);
     }
+
+    // If neither coupon nor referral code found
     return res.status(404).json({
       success: false,
       message: "Invalid or expired coupon/referral code",
@@ -527,6 +412,7 @@ const handleRegularCoupon = async (coupon, req, res) => {
   const { cartTotal, cartItems = [], totalQuantity } = req.body;
   const userId = req.user.id;
 
+  // Check global usage limit
   if (
     coupon.totalUsageLimit &&
     coupon.currentUsageCount >= coupon.totalUsageLimit
@@ -536,6 +422,8 @@ const handleRegularCoupon = async (coupon, req, res) => {
       message: "Coupon usage limit reached globally",
     });
   }
+
+  // Check per user usage limit
   const userUsageCount = await CouponUsage.countDocuments({
     couponCode: coupon.code,
     userId,
@@ -547,18 +435,24 @@ const handleRegularCoupon = async (coupon, req, res) => {
       message: "You have already used this coupon the maximum allowed times",
     });
   }
+
+  // Check minimum order amount
   if (cartTotal < coupon.minimumOrderAmount) {
     return res.status(400).json({
       success: false,
       message: `Minimum order amount must be ₹${coupon.minimumOrderAmount} to use this coupon.`,
     });
   }
+
+  // Check minimum quantity
   if (totalQuantity < coupon.minmumOrderQuanitity) {
     return res.status(400).json({
       success: false,
       message: `Minimum ${coupon.minmumOrderQuanitity} items required to use this coupon.`,
     });
   }
+
+  // Validate coupon applicability to cart items
   if (!validateCouponApplicability(coupon, cartItems)) {
     return res.status(400).json({
       success: false,
@@ -567,6 +461,8 @@ const handleRegularCoupon = async (coupon, req, res) => {
   }
 
   const discountAmount = calculateDiscountAmount(coupon, cartTotal);
+
+  // For cashback coupons, final amount doesn't include discount
   const finalAmount =
     coupon.coupantype === "cashback"
       ? cartTotal // No discount applied at checkout for cashback
@@ -593,13 +489,82 @@ const handleRegularCoupon = async (coupon, req, res) => {
   });
 };
 
+const handleReferralCode = async (referral, userId, cartTotal, res) => {
+  // Check if user is using their own referral code
+  if (referral.userId._id.toString() === userId) {
+    return res.status(400).json({
+      success: false,
+      message: "You cannot use your own referral code",
+    });
+  }
+
+  // Check if user has already used a referral code in a previous order
+  const existingReferralUsage = await Referral.findOne({
+    "referredOrders.referredByUserId": userId,
+    "referredOrders.rewardStatus": { $in: ["pending", "approved"] },
+  });
+
+  if (existingReferralUsage) {
+    return res.status(400).json({
+      success: false,
+      message: "You have already used a referral code in a previous order",
+    });
+  }
+
+  // For referral codes, we don't apply immediate discount
+  // Just validate and track for admin approval after order completion
+  return res.json({
+    success: true,
+    message: `Referral code applied successfully! ${referral.userId.name} will receive rewards after your order is completed.`,
+    coupon: {
+      code: referral.referralCode,
+      name: "Referral Bonus",
+      description: `Referral from ${referral.userId.name} - rewards applied after order completion`,
+      discountType: "referral",
+      discountValue: 0, // No immediate discount
+      discountAmount: 0,
+      finalAmount: cartTotal, // No change to cart total
+      isReferral: true,
+      referrerId: referral.userId._id,
+      referrerName: referral.userId.name,
+    },
+  });
+};
+
+// Helper function to calculate discount amount
+// const calculateDiscountAmount = (coupon, cartTotal) => {
+//   let discountAmount = 0;
+
+//   if (coupon.discountType === "percentage") {
+//     discountAmount = (cartTotal * coupon.discountValue) / 100;
+
+//     // Apply maximum discount limit if set
+//     if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
+//       discountAmount = coupon.maxDiscountAmount;
+//     }
+//   } else if (coupon.discountType === "fixed") {
+//     discountAmount = coupon.discountValue;
+
+//     // Ensure discount doesn't exceed cart total
+//     if (discountAmount > cartTotal) {
+//       discountAmount = cartTotal;
+//     }
+//   }
+
+//   return Math.round(discountAmount * 100) / 100; // Round to 2 decimal places
+// };
+
+// Helper function to validate coupon applicability to cart items
 const validateCouponApplicability = (coupon, cartItems) => {
+  // If no specific products/categories are set, coupon applies to all items
   if (
     (!coupon.applicableProducts || coupon.applicableProducts.length === 0) &&
     (!coupon.applicableCategories || coupon.applicableCategories.length === 0)
   ) {
     return true;
   }
+
+  // Check if any cart item matches the coupon criteria
   return cartItems.some((item) => {
     const productMatch =
       coupon.applicableProducts && coupon.applicableProducts.length > 0
@@ -622,6 +587,7 @@ export const trackCouponUsage = async (
   discountAmount
 ) => {
   try {
+    // Update coupon usage count
     await Coupon.findOneAndUpdate(
       { code: couponCode },
       {
@@ -629,6 +595,8 @@ export const trackCouponUsage = async (
         $set: { lastUsedAt: new Date() },
       }
     );
+
+    // Record coupon usage
     await CouponUsage.create({
       couponCode,
       userId,
@@ -637,7 +605,15 @@ export const trackCouponUsage = async (
       usedAt: new Date(),
     });
 
+    console.log(
+      `✅ Coupon usage tracked: ${couponCode} used by user ${userId}`
+    );
   } catch (error) {
     console.error("Error tracking coupon usage:", error);
   }
 };
+
+
+
+
+
