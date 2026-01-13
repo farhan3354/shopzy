@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { FiPlus, FiX, FiRefreshCw, FiTrash2, FiFolder } from "react-icons/fi";
+import { FiPlus, FiX, FiRefreshCw, FiTrash2, FiFolder, FiEdit, FiChevronDown, FiChevronRight } from "react-icons/fi";
 import api from "../../../utils/api";
 import { CATEGORY_ROUTES } from "../../../utils/apiRoute";
 import Swal from "sweetalert2";
@@ -10,6 +10,8 @@ export default function ManageCategory() {
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState("");
+  const [expandedCategory, setExpandedCategory] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
   const {
     register,
@@ -26,9 +28,9 @@ export default function ManageCategory() {
     reset();
     setDescription("");
     setShowForm(false);
+    setEditingId(null);
   };
 
-  // Custom success alert style
   const showSuccessAlert = (title, text) => {
     Swal.fire({
       icon: "success",
@@ -42,7 +44,6 @@ export default function ManageCategory() {
     });
   };
 
-  // Custom error alert style
   const showErrorAlert = (title, text) => {
     Swal.fire({
       icon: "error",
@@ -55,7 +56,6 @@ export default function ManageCategory() {
     });
   };
 
-  // Custom warning alert style
   const showWarningAlert = (title, text) => {
     Swal.fire({
       icon: "warning",
@@ -68,7 +68,6 @@ export default function ManageCategory() {
     });
   };
 
-  // Updated functions using custom alerts
   const onSubmit = async (data) => {
     try {
       const hasContent = description && description.trim().length > 0;
@@ -81,9 +80,8 @@ export default function ManageCategory() {
         return;
       }
 
-      // Show loading
       Swal.fire({
-        title: "Creating Category...",
+        title: editingId ? "Updating Category..." : "Creating Category...",
         html: "Please wait while we process your request",
         allowOutsideClick: false,
         didOpen: () => {
@@ -93,30 +91,44 @@ export default function ManageCategory() {
         color: "#1F2937",
       });
 
-      // Send only name and description (no image)
       const categoryData = {
         name: data.name,
         description: description,
       };
 
-      await api.post(CATEGORY_ROUTES.create, categoryData);
-
-      showSuccessAlert("Success!", "Category created successfully");
+      if (editingId) {
+        await api.put(CATEGORY_ROUTES.single(editingId), categoryData);
+        showSuccessAlert("Updated!", "Category updated successfully");
+      } else {
+        await api.post(CATEGORY_ROUTES.create, categoryData);
+        showSuccessAlert("Success!", "Category created successfully");
+      }
 
       reset();
       setDescription("");
       setShowForm(false);
+      setEditingId(null);
       fetchCategories();
     } catch (err) {
-      const message = err?.response?.data?.message || "Error creating category";
-      showErrorAlert("Creation Failed", message);
-      console.error("Create category error:", err);
+      const message = err?.response?.data?.message || `Error ${editingId ? 'updating' : 'creating'} category`;
+      showErrorAlert(`${editingId ? 'Update' : 'Creation'} Failed`, message);
+      console.error(`${editingId ? 'Update' : 'Create'} category error:`, err);
     }
   };
 
-  const deleteCategory = async (id) => {
+  const handleEdit = (category) => {
+    reset({
+      name: category.name,
+    });
+    setDescription(category.description || "");
+    setEditingId(category._id);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const deleteCategory = async (id, name) => {
     const result = await Swal.fire({
-      title: "Delete Category?",
+      title: `Delete "${name}"?`,
       text: "This action cannot be undone. All products in this category might be affected.",
       icon: "question",
       showCancelButton: true,
@@ -166,103 +178,126 @@ export default function ManageCategory() {
     }
   };
 
+  const toggleCategoryExpand = (categoryId) => {
+    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Category Management
             </h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">
-              Create and manage product categories
+            <p className="text-gray-600 mt-2">
+              Create and manage product categories in a list format
             </p>
           </div>
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+              className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto shadow-sm"
             >
-              <FiPlus className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-sm sm:text-base">Create Category</span>
+              <FiPlus className="w-5 h-5" />
+              <span className="font-medium">Create Category</span>
             </button>
           )}
         </div>
 
         {showForm && (
-          <div className="mb-6 sm:mb-8 bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-4 sm:p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                  Add New Category
+          <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {editingId ? "Edit Category" : "Add New Category"}
                 </h2>
                 <button
                   onClick={handleCancel}
-                  className="text-gray-500 hover:text-gray-700 transition-colors p-1"
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                  aria-label="Close form"
                 >
-                  <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <FiX className="w-6 h-6" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category Name *
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter category name"
+                    placeholder="Enter category name (e.g., Electronics, Clothing)"
                     {...register("name", {
                       required: "Category name is required",
                       minLength: {
                         value: 2,
                         message: "Category name must be at least 2 characters",
                       },
+                      maxLength: {
+                        value: 100,
+                        message: "Category name must be less than 100 characters",
+                      },
                     })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base"
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    <p className="text-red-600 text-sm mt-2">
                       {errors.name.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Description *
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter category description"
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base resize-none"
+                    placeholder="Enter a detailed description of this category..."
+                    rows={5}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-base resize-none"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Provide a clear description of this category
-                  </p>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-sm text-gray-500">
+                      {description.length}/500 characters
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Provide a clear description for this category
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-4 pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base"
+                    className="flex-1 px-6 py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-base shadow-sm"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating...
+                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                        {editingId ? "Updating Category..." : "Creating Category..."}
                       </span>
                     ) : (
-                      "Create Category"
+                      editingId ? "Update Category" : "Create Category"
                     )}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium text-sm sm:text-base"
+                    className="flex-1 px-6 py-3.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-base"
                   >
                     Cancel
                   </button>
@@ -272,893 +307,219 @@ export default function ManageCategory() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <FiFolder className="text-blue-600" />
-                Categories ({categories.length})
-              </h2>
-              <button
-                onClick={fetchCategories}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
-              >
-                <FiRefreshCw className="w-4 h-4" />
-                <span>Refresh</span>
-              </button>
-            </div>
-
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="inline-flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-                  <span className="text-gray-600 text-sm sm:text-base">
-                    Loading categories...
-                  </span>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div className="flex items-center space-x-3">
+                <FiFolder className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Categories List
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Total: {categories.length} categories
+                  </p>
                 </div>
               </div>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={fetchCategories}
+                  disabled={isLoading}
+                  className="px-4 py-2.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                >
+                  <FiRefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-1">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
+                <p className="text-gray-600 text-lg font-medium">
+                  Loading categories...
+                </p>
+                <p className="text-gray-500 text-sm mt-2">
+                  Please wait while we fetch your categories
+                </p>
+              </div>
             ) : categories.length === 0 ? (
-              <div className="text-center py-8">
-                <FiFolder className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
-                  No categories
+              <div className="flex flex-col items-center justify-center py-12 px-4">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                  <FiFolder className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No categories found
                 </h3>
-                <p className="text-gray-500 text-sm sm:text-base mb-6">
-                  Get started by creating your first category.
+                <p className="text-gray-500 text-center mb-8 max-w-md">
+                  You haven't created any categories yet. Categories help organize your products and improve customer experience.
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2 shadow-sm"
                 >
-                  <FiPlus className="-ml-1 mr-2 h-5 w-5" />
-                  Create Category
+                  <FiPlus className="w-5 h-5" />
+                  <span>Create Your First Category</span>
                 </button>
               </div>
             ) : (
-              <>
-                <div className="hidden lg:grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat._id}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-                    >
-                      <div className="flex flex-col h-full">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-gray-800 text-base sm:text-lg">
-                              {cat.name}
-                            </h3>
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                              {cat.slug ||
-                                cat.name.toLowerCase().replace(/\s+/g, "-")}
-                            </span>
-                          </div>
+              <div className="divide-y divide-gray-100">
+                {/* Table Header - Desktop */}
+                <div className="hidden md:grid grid-cols-12 px-6 py-3.5 bg-gray-50 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <div className="col-span-5">Category Name</div>
+                  <div className="col-span-4">Description</div>
+                  <div className="col-span-2">Created Date</div>
+                  <div className="col-span-1 text-center">Actions</div>
+                </div>
 
-                          {cat.description && (
-                            <div className="text-gray-600 mt-1 text-sm mb-4">
-                              <p className="whitespace-pre-line">
-                                {cat.description}
-                              </p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between mt-auto">
-                            {cat.createdAt && (
-                              <span className="text-xs text-gray-500">
-                                Created:{" "}
-                                {new Date(cat.createdAt).toLocaleDateString()}
-                              </span>
+                {/* Categories List */}
+                {categories.map((category, index) => (
+                  <div
+                    key={category._id}
+                    className={`px-4 md:px-6 py-4 hover:bg-gray-50 transition-colors ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    {/* Mobile View */}
+                    <div className="md:hidden">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => toggleCategoryExpand(category._id)}
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          >
+                            {expandedCategory === category._id ? (
+                              <FiChevronDown className="w-5 h-5 text-gray-500" />
+                            ) : (
+                              <FiChevronRight className="w-5 h-5 text-gray-500" />
                             )}
+                          </button>
+                          <div>
+                            <h3 className="font-semibold text-gray-900 text-base">
+                              {category.name}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Slug: {category.slug || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">
+                            {formatDate(category.createdAt)}
+                          </span>
+                          <button
+                            onClick={() => deleteCategory(category._id, category.name)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            aria-label={`Delete ${category.name}`}
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {expandedCategory === category._id && (
+                        <div className="pl-10 mt-3 space-y-3">
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-700 mb-1">
+                              Description:
+                            </h4>
+                            <p className="text-gray-600 text-sm whitespace-pre-line bg-gray-100 p-3 rounded-lg">
+                              {category.description || "No description provided"}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                            <div className="text-xs text-gray-500">
+                              ID: {category._id}
+                            </div>
                             <button
-                              onClick={() => deleteCategory(cat._id)}
-                              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                              onClick={() => handleEdit(category)}
+                              className="px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors flex items-center space-x-1"
                             >
-                              <FiTrash2 className="w-3 h-3" />
-                              Delete
+                              <FiEdit className="w-3 h-3" />
+                              <span>Edit</span>
                             </button>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="lg:hidden space-y-4">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat._id}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-800 text-base">
-                          {cat.name}
-                        </h3>
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                          {cat.slug ||
-                            cat.name.toLowerCase().replace(/\s+/g, "-")}
-                        </span>
-                      </div>
-
-                      {cat.description && (
-                        <div className="text-gray-600 text-sm mb-3">
-                          <p className="whitespace-pre-line line-clamp-3">
-                            {cat.description}
-                          </p>
-                        </div>
                       )}
+                    </div>
 
-                      <div className="flex items-center justify-between mt-3">
-                        {cat.createdAt && (
-                          <span className="text-xs text-gray-500">
-                            {new Date(cat.createdAt).toLocaleDateString()}
-                          </span>
-                        )}
-                        <button
-                          onClick={() => deleteCategory(cat._id)}
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs font-medium flex items-center gap-1"
-                        >
-                          <FiTrash2 className="w-3 h-3" />
-                          Delete
-                        </button>
+                    {/* Desktop View */}
+                    <div className="hidden md:grid grid-cols-12 items-center">
+                      <div className="col-span-5">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <FiFolder className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900">
+                              {category.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Slug: {category.slug || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-4">
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {category.description || "No description provided"}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="text-sm text-gray-600">
+                          {formatDate(category.createdAt)}
+                        </div>
+                      </div>
+                      <div className="col-span-1">
+                        <div className="flex items-center justify-center space-x-2">
+                          <button
+                            onClick={() => handleEdit(category)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            aria-label={`Edit ${category.name}`}
+                            title="Edit Category"
+                          >
+                            <FiEdit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteCategory(category._id, category.name)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            aria-label={`Delete ${category.name}`}
+                            title="Delete Category"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+
+          {/* Footer Stats */}
+          {categories.length > 0 && !isLoading && (
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
+                <div className="mb-2 sm:mb-0">
+                  Showing <span className="font-semibold">{categories.length}</span> categories
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <span>Active Categories</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
-// import { useState, useEffect, useRef } from "react";
-// import { useForm } from "react-hook-form";
-// import {
-//   FiPlus,
-//   FiX,
-//   FiRefreshCw,
-//   FiTrash2,
-//   FiFolder,
-//   FiImage,
-// } from "react-icons/fi";
-// import { Editor } from "@tinymce/tinymce-react";
-// import api from "../../../utils/api";
-// import { CATEGORY_ROUTES } from "../../../utils/apiRoute";
-// import Swal from "sweetalert2";
-
-// export default function ManageCategory() {
-//   const [categories, setCategories] = useState([]);
-//   const [showForm, setShowForm] = useState(false);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [imagePreview, setImagePreview] = useState(null);
-//   const [description, setDescription] = useState("");
-//   const editorRef = useRef(null);
-
-//   const {
-//     register,
-//     handleSubmit,
-//     reset,
-//     watch,
-//     setValue,
-//     formState: { errors, isSubmitting },
-//   } = useForm();
-
-//   const imageFile = watch("image");
-//   useEffect(() => {
-//     if (imageFile && imageFile.length > 0) {
-//       const file = imageFile[0];
-//       if (file.type.startsWith("image/")) {
-//         const reader = new FileReader();
-//         reader.onload = (e) => setImagePreview(e.target.result);
-//         reader.readAsDataURL(file);
-//       }
-//     } else {
-//       setImagePreview(null);
-//     }
-//   }, [imageFile]);
-
-//   useEffect(() => {
-//     fetchCategories();
-//   }, []);
-
-//   const handleCancel = () => {
-//     reset();
-//     setImagePreview(null);
-//     setDescription("");
-//     setShowForm(false);
-//   };
-
-//   // Custom success alert style
-//   const showSuccessAlert = (title, text) => {
-//     Swal.fire({
-//       icon: "success",
-//       title: title,
-//       text: text,
-//       confirmButtonColor: "#10B981",
-//       iconColor: "#10B981",
-//       background: "#F9FAFB",
-//       color: "#1F2937",
-//       timer: 2000,
-//     });
-//   };
-
-//   // Custom error alert style
-//   const showErrorAlert = (title, text) => {
-//     Swal.fire({
-//       icon: "error",
-//       title: title,
-//       text: text,
-//       confirmButtonColor: "#EF4444",
-//       iconColor: "#EF4444",
-//       background: "#F9FAFB",
-//       color: "#1F2937",
-//     });
-//   };
-
-//   // Custom warning alert style
-//   const showWarningAlert = (title, text) => {
-//     Swal.fire({
-//       icon: "warning",
-//       title: title,
-//       text: text,
-//       confirmButtonColor: "#F59E0B",
-//       iconColor: "#F59E0B",
-//       background: "#F9FAFB",
-//       color: "#1F2937",
-//     });
-//   };
-
-//   // Updated functions using custom alerts
-//   const onSubmit = async (data) => {
-//     try {
-//       const hasContent =
-//         description && description.replace(/<[^>]*>/g, "").trim().length > 0;
-
-//       if (!hasContent) {
-//         showWarningAlert(
-//           "Description Required",
-//           "Please enter a category description"
-//         );
-//         return;
-//       }
-
-//       const formData = new FormData();
-//       formData.append("name", data.name);
-//       formData.append("description", description);
-
-//       if (data.image && data.image[0]) {
-//         formData.append("image", data.image[0]);
-//       }
-
-//       // Show loading
-//       Swal.fire({
-//         title: "Creating Category...",
-//         html: "Please wait while we process your request",
-//         allowOutsideClick: false,
-//         didOpen: () => {
-//           Swal.showLoading();
-//         },
-//         background: "#F9FAFB",
-//         color: "#1F2937",
-//       });
-
-//       await api.post(CATEGORY_ROUTES.create, formData, {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//         },
-//       });
-
-//       showSuccessAlert("Success!", "Category created successfully");
-
-//       reset();
-//       setImagePreview(null);
-//       setDescription("");
-//       setShowForm(false);
-//       fetchCategories();
-//     } catch (err) {
-//       const message = err?.response?.data?.message || "Error creating category";
-//       showErrorAlert("Creation Failed", message);
-//       console.error("Create category error:", err);
-//     }
-//   };
-
-//   const deleteCategory = async (id) => {
-//     const result = await Swal.fire({
-//       title: "Delete Category?",
-//       text: "This action cannot be undone. All products in this category might be affected.",
-//       icon: "question",
-//       showCancelButton: true,
-//       confirmButtonColor: "#EF4444",
-//       cancelButtonColor: "#6B7280",
-//       confirmButtonText: "Yes, delete it!",
-//       cancelButtonText: "Cancel",
-//       background: "#F9FAFB",
-//       color: "#1F2937",
-//       reverseButtons: true,
-//       focusCancel: true,
-//     });
-
-//     if (!result.isConfirmed) return;
-
-//     try {
-//       Swal.fire({
-//         title: "Deleting Category...",
-//         html: "Please wait while we remove the category",
-//         allowOutsideClick: false,
-//         didOpen: () => {
-//           Swal.showLoading();
-//         },
-//         background: "#F9FAFB",
-//         color: "#1F2937",
-//       });
-
-//       await api.delete(CATEGORY_ROUTES.single(id));
-
-//       showSuccessAlert("Deleted!", "Category has been deleted successfully");
-//       fetchCategories();
-//     } catch (err) {
-//       const message = err?.response?.data?.message || "Error deleting category";
-//       showErrorAlert("Delete Failed", message);
-//     }
-//   };
-
-//   const fetchCategories = async () => {
-//     try {
-//       setIsLoading(true);
-//       const response = await api.get(CATEGORY_ROUTES.all);
-//       setCategories(response.data.categories || []);
-//     } catch (error) {
-//       console.error("Failed to fetch categories:", error);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const editorConfig = {
-//     height: 300,
-//     menubar: true,
-//     plugins: [
-//       "advlist",
-//       "autolink",
-//       "lists",
-//       "link",
-//       "image",
-//       "charmap",
-//       "preview",
-//       "anchor",
-//       "searchreplace",
-//       "visualblocks",
-//       "code",
-//       "fullscreen",
-//       "insertdatetime",
-//       "media",
-//       "table",
-//       "code",
-//       "help",
-//       "wordcount",
-//     ],
-//     toolbar:
-//       "undo redo | blocks | bold italic underline strikethrough | " +
-//       "forecolor backcolor | alignleft aligncenter alignright alignjustify | " +
-//       "bullist numlist outdent indent | link image media | " +
-//       "fontsizeselect fontselect | removeformat | code | help",
-//     content_style: `
-//       body {
-//         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-//         font-size: 14px;
-//         line-height: 1.6;
-//         color: #374151;
-//       }
-//       h1, h2, h3, h4, h5, h6 {
-//         color: #111827;
-//         margin-top: 1em;
-//         margin-bottom: 0.5em;
-//       }
-//       h1 { font-size: 2em; }
-//       h2 { font-size: 1.5em; }
-//       h3 { font-size: 1.25em; }
-//       p { margin-bottom: 1em; }
-//       ul, ol { padding-left: 2em; }
-//       blockquote {
-//         border-left: 4px solid #0ea5e9;
-//         background-color: #f0f9ff;
-//         padding: 1em 1.5em;
-//         margin: 1em 0;
-//         font-style: italic;
-//         color: #1e40af;
-//         border-radius: 0 0.5em 0.5em 0;
-//       }
-//       code {
-//         background-color: #f3f4f6;
-//         padding: 0.1em 0.3em;
-//         border-radius: 0.25em;
-//         font-family: 'Courier New', monospace;
-//         color: #dc2626;
-//       }
-//       pre {
-//         background-color: #1f2937;
-//         color: #f9fafb;
-//         padding: 1em;
-//         border-radius: 0.375em;
-//         overflow-x: auto;
-//         margin: 1em 0;
-//       }
-//       a { color: #0ea5e9; }
-//       a:hover { color: #0284c7; }
-//       table { border-collapse: collapse; width: 100%; margin: 1.5em 0; }
-//       table, th, td { border: 1px solid #e5e7eb; }
-//       th { background-color: #f8fafc; font-weight: 600; }
-//       th, td { padding: 0.75em; text-align: left; }
-//       tr:nth-child(even) { background-color: #f9fafb; }
-
-//       /* Custom classes for category description */
-//       .text-red { color: #dc2626; }
-//       .text-blue { color: #2563eb; }
-//       .text-green { color: #059669; }
-//       .text-yellow { color: #d97706; }
-//       .text-purple { color: #7c3aed; }
-
-//       .bg-red { background-color: #fef2f2; padding: 0.25em 0.5em; border-radius: 0.25em; }
-//       .bg-blue { background-color: #eff6ff; padding: 0.25em 0.5em; border-radius: 0.25em; }
-//       .bg-green { background-color: #f0fdf4; padding: 0.25em 0.5em; border-radius: 0.25em; }
-
-//       .text-xs { font-size: 0.75em; }
-//       .text-sm { font-size: 0.875em; }
-//       .text-base { font-size: 1em; }
-//       .text-lg { font-size: 1.125em; }
-//       .text-xl { font-size: 1.25em; }
-
-//       .font-light { font-weight: 300; }
-//       .font-normal { font-weight: 400; }
-//       .font-medium { font-weight: 500; }
-//       .font-semibold { font-weight: 600; }
-//       .font-bold { font-weight: 700; }
-
-//       .text-left { text-align: left; }
-//       .text-center { text-align: center; }
-//       .text-right { text-align: right; }
-//       .text-justify { text-align: justify; }
-//     `,
-//     branding: false,
-//     promotion: false,
-//     paste_data_images: false,
-//     automatic_uploads: false,
-//     formats: {
-//       alignleft: {
-//         selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img",
-//         classes: "text-left",
-//       },
-//       aligncenter: {
-//         selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img",
-//         classes: "text-center",
-//       },
-//       alignright: {
-//         selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img",
-//         classes: "text-right",
-//       },
-//       alignjustify: {
-//         selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img",
-//         classes: "text-justify",
-//       },
-//     },
-//     style_formats: [
-//       { title: "Heading 1", format: "h1" },
-//       { title: "Heading 2", format: "h2" },
-//       { title: "Heading 3", format: "h3" },
-//       { title: "Heading 4", format: "h4" },
-//       { title: "Heading 5", format: "h5" },
-//       { title: "Heading 6", format: "h6" },
-//       { title: "Paragraph", format: "p" },
-//       { title: "Blockquote", format: "blockquote" },
-//       { title: "Pre", format: "pre" },
-//       {
-//         title: "Text Colors",
-//         items: [
-//           { title: "Red", inline: "span", classes: "text-red" },
-//           { title: "Blue", inline: "span", classes: "text-blue" },
-//           { title: "Green", inline: "span", classes: "text-green" },
-//           { title: "Yellow", inline: "span", classes: "text-yellow" },
-//           { title: "Purple", inline: "span", classes: "text-purple" },
-//         ],
-//       },
-//       {
-//         title: "Background Colors",
-//         items: [
-//           { title: "Red Background", inline: "span", classes: "bg-red" },
-//           { title: "Blue Background", inline: "span", classes: "bg-blue" },
-//           { title: "Green Background", inline: "span", classes: "bg-green" },
-//         ],
-//       },
-//       {
-//         title: "Font Sizes",
-//         items: [
-//           { title: "Extra Small", inline: "span", classes: "text-xs" },
-//           { title: "Small", inline: "span", classes: "text-sm" },
-//           { title: "Base", inline: "span", classes: "text-base" },
-//           { title: "Large", inline: "span", classes: "text-lg" },
-//           { title: "Extra Large", inline: "span", classes: "text-xl" },
-//         ],
-//       },
-//       {
-//         title: "Font Weights",
-//         items: [
-//           { title: "Light", inline: "span", classes: "font-light" },
-//           { title: "Normal", inline: "span", classes: "font-normal" },
-//           { title: "Medium", inline: "span", classes: "font-medium" },
-//           { title: "Semibold", inline: "span", classes: "font-semibold" },
-//           { title: "Bold", inline: "span", classes: "font-bold" },
-//         ],
-//       },
-//     ],
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
-//       <div className="max-w-7xl mx-auto">
-//         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-//           <div>
-//             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-//               Category Management
-//             </h1>
-//             <p className="text-gray-600 mt-1 text-sm sm:text-base">
-//               Create and manage product categories
-//             </p>
-//           </div>
-//           {!showForm && (
-//             <button
-//               onClick={() => setShowForm(true)}
-//               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
-//             >
-//               <FiPlus className="w-4 h-4 sm:w-5 sm:h-5" />
-//               <span className="text-sm sm:text-base">Create Category</span>
-//             </button>
-//           )}
-//         </div>
-//         {showForm && (
-//           <div className="mb-6 sm:mb-8 bg-white rounded-lg shadow-sm border border-gray-200">
-//             <div className="p-4 sm:p-6">
-//               <div className="flex justify-between items-center mb-4">
-//                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-//                   Add New Category
-//                 </h2>
-//                 <button
-//                   onClick={handleCancel}
-//                   className="text-gray-500 hover:text-gray-700 transition-colors p-1"
-//                 >
-//                   <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
-//                 </button>
-//               </div>
-
-//               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">
-//                     Category Name *
-//                   </label>
-//                   <input
-//                     type="text"
-//                     placeholder="Enter category name"
-//                     {...register("name", {
-//                       required: "Category name is required",
-//                       minLength: {
-//                         value: 2,
-//                         message: "Category name must be at least 2 characters",
-//                       },
-//                     })}
-//                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
-//                   />
-//                   {errors.name && (
-//                     <p className="text-red-500 text-xs sm:text-sm mt-1">
-//                       {errors.name.message}
-//                     </p>
-//                   )}
-//                 </div>
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">
-//                     Description *
-//                   </label>
-//                   <div className="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
-//                     <Editor
-//                       onInit={(evt, editor) => (editorRef.current = editor)}
-//                       value={description}
-//                       onEditorChange={(newValue) => setDescription(newValue)}
-//                       init={editorConfig}
-//                       apiKey={
-//                         "5vdp2934fu4e3s9ppww5is091de5hxrjv2ju7lh5unb8ycvd"
-//                       }
-//                     />
-//                   </div>
-//                   <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
-//                     <span>
-//                       💡 <strong>Formatting Tips:</strong>
-//                     </span>
-//                     <span>• Use headings for structure</span>
-//                     <span>• Create lists for features</span>
-//                     <span>• Add links for references</span>
-//                     <span>• Use tables for specifications</span>
-//                     <span>• Apply colors and formatting from menu</span>
-//                   </div>
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">
-//                     Category Image *
-//                   </label>
-//                   <div className="flex items-center gap-3 mb-2">
-//                     <FiImage className="text-gray-400 text-lg" />
-//                     <input
-//                       type="file"
-//                       accept="image/*"
-//                       {...register("image", {
-//                         required: "Category image is required",
-//                         validate: {
-//                           fileType: (files) =>
-//                             !files[0] ||
-//                             files[0].type.startsWith("image/") ||
-//                             "Please select an image file",
-//                           fileSize: (files) =>
-//                             !files[0] ||
-//                             files[0].size <= 5 * 1024 * 1024 ||
-//                             "File size should be less than 5MB",
-//                         },
-//                       })}
-//                       className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
-//                     />
-//                   </div>
-//                   {errors.image && (
-//                     <p className="text-red-500 text-xs sm:text-sm mt-1">
-//                       {errors.image.message}
-//                     </p>
-//                   )}
-//                   <p className="text-xs text-gray-500">
-//                     Supported formats: JPG, PNG, WebP. Max size: 5MB
-//                   </p>
-//                   {imagePreview && (
-//                     <div className="mt-3">
-//                       <p className="text-sm font-medium text-gray-700 mb-2">
-//                         Preview:
-//                       </p>
-//                       <img
-//                         src={imagePreview}
-//                         alt="Preview"
-//                         className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg border border-gray-300"
-//                       />
-//                     </div>
-//                   )}
-//                 </div>
-
-//                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-//                   <button
-//                     type="submit"
-//                     disabled={isSubmitting}
-//                     className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base"
-//                   >
-//                     {isSubmitting ? (
-//                       <span className="flex items-center justify-center">
-//                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-//                         Creating...
-//                       </span>
-//                     ) : (
-//                       "Create Category"
-//                     )}
-//                   </button>
-//                   <button
-//                     type="button"
-//                     onClick={handleCancel}
-//                     className="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium text-sm sm:text-base"
-//                   >
-//                     Cancel
-//                   </button>
-//                 </div>
-//               </form>
-//             </div>
-//           </div>
-//         )}
-//         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-//           <div className="p-4 sm:p-6">
-//             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-//               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2">
-//                 <FiFolder className="text-blue-600" />
-//                 Categories ({categories.length})
-//               </h2>
-//               <button
-//                 onClick={fetchCategories}
-//                 className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
-//               >
-//                 <FiRefreshCw className="w-4 h-4" />
-//                 <span>Refresh</span>
-//               </button>
-//             </div>
-
-//             {isLoading ? (
-//               <div className="text-center py-8">
-//                 <div className="inline-flex items-center justify-center">
-//                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-//                   <span className="text-gray-600 text-sm sm:text-base">
-//                     Loading categories...
-//                   </span>
-//                 </div>
-//               </div>
-//             ) : categories.length === 0 ? (
-//               <div className="text-center py-8">
-//                 <FiFolder className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-//                 <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
-//                   No categories
-//                 </h3>
-//                 <p className="text-gray-500 text-sm sm:text-base mb-6">
-//                   Get started by creating your first category.
-//                 </p>
-//                 <button
-//                   onClick={() => setShowForm(true)}
-//                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-//                 >
-//                   <FiPlus className="-ml-1 mr-2 h-5 w-5" />
-//                   Create Category
-//                 </button>
-//               </div>
-//             ) : (
-//               <>
-//                 <div className="hidden lg:grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-//                   {categories.map((cat) => (
-//                     <div
-//                       key={cat._id}
-//                       className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-//                     >
-//                       <div className="flex flex-col h-full">
-//                         {cat.image && (
-//                           <div className="mb-3">
-//                             <img
-//                               src={cat.image}
-//                               alt={cat.name}
-//                               className="w-full h-32 object-cover rounded-lg"
-//                             />
-//                           </div>
-//                         )}
-
-//                         <div className="flex-1">
-//                           <h3 className="font-semibold text-gray-800 text-base sm:text-lg">
-//                             {cat.name}
-//                           </h3>
-//                           {cat.description && (
-//                             <div
-//                               className="text-gray-600 mt-1 text-sm line-clamp-2 category-description-content"
-//                               dangerouslySetInnerHTML={{
-//                                 __html: cat.description,
-//                               }}
-//                             />
-//                           )}
-//                           <div className="flex items-center justify-between mt-3">
-//                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-//                               {cat.slug}
-//                             </span>
-//                             {cat.createdAt && (
-//                               <span className="text-xs text-gray-500">
-//                                 {new Date(cat.createdAt).toLocaleDateString()}
-//                               </span>
-//                             )}
-//                           </div>
-//                         </div>
-//                         <button
-//                           onClick={() => deleteCategory(cat._id)}
-//                           className="mt-3 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-//                         >
-//                           <FiTrash2 className="w-3 h-3" />
-//                           Delete
-//                         </button>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </div>
-//                 <div className="lg:hidden space-y-4">
-//                   {categories.map((cat) => (
-//                     <div
-//                       key={cat._id}
-//                       className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-//                     >
-//                       <div className="flex gap-4">
-//                         {cat.image && (
-//                           <div className="flex-shrink-0">
-//                             <img
-//                               src={cat.image}
-//                               alt={cat.name}
-//                               className="w-20 h-20 object-cover rounded-lg"
-//                             />
-//                           </div>
-//                         )}
-//                         <div className="flex-1 min-w-0">
-//                           <h3 className="font-semibold text-gray-800 text-base truncate">
-//                             {cat.name}
-//                           </h3>
-//                           {cat.description && (
-//                             <div
-//                               className="text-gray-600 mt-1 text-sm line-clamp-2 category-description-content"
-//                               dangerouslySetInnerHTML={{
-//                                 __html: cat.description,
-//                               }}
-//                             />
-//                           )}
-//                           <div className="flex items-center justify-between mt-2">
-//                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-//                               {cat.slug}
-//                             </span>
-//                             <button
-//                               onClick={() => deleteCategory(cat._id)}
-//                               className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs font-medium flex items-center gap-1"
-//                             >
-//                               <FiTrash2 className="w-3 h-3" />
-//                               Delete
-//                             </button>
-//                           </div>
-//                           {cat.createdAt && (
-//                             <div className="mt-2 text-xs text-gray-500">
-//                               Created:{" "}
-//                               {new Date(cat.createdAt).toLocaleDateString()}
-//                             </div>
-//                           )}
-//                         </div>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </div>
-//                 <div className="hidden md:block lg:hidden grid gap-4 grid-cols-2">
-//                   {categories.map((cat) => (
-//                     <div
-//                       key={cat._id}
-//                       className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
-//                     >
-//                       <div className="flex flex-col h-full">
-//                         {cat.image && (
-//                           <div className="mb-3">
-//                             <img
-//                               src={cat.image}
-//                               alt={cat.name}
-//                               className="w-full h-24 object-cover rounded-lg"
-//                             />
-//                           </div>
-//                         )}
-
-//                         <div className="flex-1">
-//                           <h3 className="font-semibold text-gray-800 text-sm">
-//                             {cat.name}
-//                           </h3>
-//                           {cat.description && (
-//                             <div
-//                               className="text-gray-600 mt-1 text-xs line-clamp-2 category-description-content"
-//                               dangerouslySetInnerHTML={{
-//                                 __html: cat.description,
-//                               }}
-//                             />
-//                           )}
-//                           <div className="flex items-center justify-between mt-2">
-//                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-//                               {cat.slug}
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="flex items-center justify-between mt-3">
-//                           {cat.createdAt && (
-//                             <span className="text-xs text-gray-500">
-//                               {new Date(cat.createdAt).toLocaleDateString()}
-//                             </span>
-//                           )}
-//                           <button
-//                             onClick={() => deleteCategory(cat._id)}
-//                             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs font-medium flex items-center gap-1"
-//                           >
-//                             <FiTrash2 className="w-3 h-3" />
-//                             Delete
-//                           </button>
-//                         </div>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }

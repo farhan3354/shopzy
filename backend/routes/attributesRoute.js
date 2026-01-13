@@ -3,11 +3,14 @@ import {
   createAttribute,
   deleteAttribute,
   getAttributes,
+  updateAttribute,
 } from "../controllers/attributesController.js";
 
 const router = express.Router();
 
 router.post("/", createAttribute);
 router.get("/", getAttributes);
-router.delete("/delete/:id",deleteAttribute)
+router.put("/:id", updateAttribute);
+router.delete("/:id", deleteAttribute);
+
 export default router;

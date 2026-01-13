@@ -273,7 +273,7 @@ export default function FeatureProduct() {
         text: "Please login to add to wishlist!",
         icon: "warning",
         confirmButtonText: "OK",
-        confirmButtonColor: "#8F2B53",
+        confirmButtonColor: "#4A90E2",
       });
       return;
     }
@@ -286,7 +286,7 @@ export default function FeatureProduct() {
           title: "Removed!",
           text: "Item removed from wishlist.",
           icon: "success",
-          confirmButtonColor: "#8F2B53",
+          confirmButtonColor: "#4A90E2",
         });
       } else {
         await api.post("/wishlist/add", { productId });
@@ -295,7 +295,7 @@ export default function FeatureProduct() {
           title: "Added!",
           text: "Item added to wishlist.",
           icon: "success",
-          confirmButtonColor: "#8F2B53",
+          confirmButtonColor: "#4A90E2",
         });
       }
 
@@ -307,7 +307,7 @@ export default function FeatureProduct() {
         title: "Error",
         text: "Failed to update wishlist",
         icon: "error",
-        confirmButtonColor: "#8F2B53",
+        confirmButtonColor: "#4A90E2",
       });
     }
   };
@@ -319,7 +319,7 @@ export default function FeatureProduct() {
         text: "Please login to add to cart!",
         icon: "warning",
         confirmButtonText: "OK",
-        confirmButtonColor: "#8F2B53",
+        confirmButtonColor: "#4A90E2",
       });
       return;
     }
@@ -338,7 +338,7 @@ export default function FeatureProduct() {
         title: "Success!",
         text: "Item added to cart.",
         icon: "success",
-        confirmButtonColor: "#8F2B53",
+        confirmButtonColor: "#4A90E2",
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -348,7 +348,7 @@ export default function FeatureProduct() {
         title: "Error",
         text: errorMessage,
         icon: "error",
-        confirmButtonColor: "#8F2B53",
+        confirmButtonColor: "#4A90E2",
       });
     }
   };
@@ -429,7 +429,7 @@ export default function FeatureProduct() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-3 h-8 bg-gradient-to-b from-[#BE386E] to-[#8F2B53] rounded-full"></div>
+                      <div className="w-3 h-8 bg-gradient-to-b from-[#4A90E2] to-[#357ABD] rounded-full"></div>
                       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 capitalize">
                         {categoryGroup.category.name}
                       </h2>
@@ -440,7 +440,7 @@ export default function FeatureProduct() {
                   </div>
                   <Link
                     to={`/category/${categoryGroup.category._id}`}
-                    className="group flex items-center gap-2 text-[#8F2B53] hover:text-[#BE386E] font-semibold px-6 py-3 bg-[#f6e9ee] hover:bg-[#f0dce5] rounded-full transition-colors"
+                    className="group flex items-center gap-2 text-[#4A90E2] hover:text-[#357ABD] font-semibold px-6 py-3 bg-[#E3F2FD] hover:bg-[#BBDEFB] rounded-full transition-colors"
                   >
                     View All Products
                     <FiArrowRight className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -482,7 +482,7 @@ export default function FeatureProduct() {
         {/* Hero Banner for Product Page */}
         {isProductPage && (
           <div className="mb-8 md:mb-12">
-            <div className="bg-gradient-to-r from-[#8F2B53] to-[#BE386E] rounded-2xl p-6 md:p-8 text-white overflow-hidden relative">
+            <div className="bg-gradient-to-r from-[#4A90E2] to-[#357ABD] rounded-2xl p-6 md:p-8 text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
               <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full translate-y-48 -translate-x-48"></div>
               
@@ -523,7 +523,7 @@ export default function FeatureProduct() {
               <div className="lg:hidden flex items-center justify-between mb-4">
                 <button
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:border-[#8F2B53] hover:text-[#8F2B53] transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 font-medium hover:border-[#4A90E2] hover:text-[#4A90E2] transition-colors"
                 >
                   <FiFilter className="w-5 h-5" />
                   <span>Filters</span>
@@ -531,7 +531,7 @@ export default function FeatureProduct() {
                    filters.category || 
                    filters.priceRange || 
                    filters.rating ? (
-                    <span className="ml-2 w-6 h-6 bg-[#8F2B53] text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="ml-2 w-6 h-6 bg-[#4A90E2] text-white text-xs rounded-full flex items-center justify-center">
                       {[
                         Object.keys(filters.attributes).length,
                         filters.category ? 1 : 0,
@@ -551,7 +551,7 @@ export default function FeatureProduct() {
                     onChange={(e) =>
                       setFilters({ ...filters, sortBy: e.target.value })
                     }
-                    className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#8F2B53] focus:border-transparent"
+                    className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
                   >
                     <option value="featured">Featured</option>
                     <option value="price-low">Price: Low to High</option>
@@ -590,7 +590,7 @@ export default function FeatureProduct() {
                     <div className="p-4 border-t border-gray-200">
                       <button
                         onClick={() => setMobileFiltersOpen(false)}
-                        className="w-full py-3 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                        className="w-full py-3 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                       >
                         Apply Filters
                       </button>
@@ -607,9 +607,9 @@ export default function FeatureProduct() {
             {!isProductPage && (
               <div className="text-center mb-10">
                 <div className="inline-flex items-center gap-3 mb-4">
-                  <div className="w-4 h-10 bg-gradient-to-b from-[#BE386E] to-[#8F2B53] rounded-full"></div>
+                  <div className="w-4 h-10 bg-gradient-to-b from-[#357ABD] to-[#4A90E2] rounded-full"></div>
                   <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Featured Products</h2>
-                  <div className="w-4 h-10 bg-gradient-to-b from-[#8F2B53] to-[#BE386E] rounded-full"></div>
+                  <div className="w-4 h-10 bg-gradient-to-b from-[#4A90E2] to-[#357ABD] rounded-full"></div>
                 </div>
                 <p className="text-gray-600 max-w-2xl mx-auto">
                   Discover our handpicked selection of premium products, curated just for you
@@ -660,7 +660,7 @@ export default function FeatureProduct() {
                 {isProductPage && (
                   <button
                     onClick={clearAllFilters}
-                    className="px-8 py-3 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                    className="px-8 py-3 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                   >
                     Clear All Filters
                   </button>
@@ -693,7 +693,7 @@ export default function FeatureProduct() {
                   <div className="mt-12 text-center">
                     <Link
                       to="/products"
-                      className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all"
+                      className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all"
                     >
                       View All Products
                       <FiArrowRight className="w-5 h-5" />
@@ -711,16 +711,16 @@ export default function FeatureProduct() {
                   <span className="font-semibold text-gray-900">{activeProducts.length}</span> products
                 </p>
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#8F2B53] hover:text-[#8F2B53] transition-colors">
+                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#4A90E2] hover:text-[#4A90E2] transition-colors">
                     Previous
                   </button>
-                  <button className="px-4 py-2 bg-gradient-to-r from-[#8F2B53] to-[#BE386E] text-white rounded-lg hover:opacity-90 transition-opacity">
+                  <button className="px-4 py-2 bg-gradient-to-r from-[#4A90E2] to-[#357ABD] text-white rounded-lg hover:opacity-90 transition-opacity">
                     1
                   </button>
-                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#8F2B53] hover:text-[#8F2B53] transition-colors">
+                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#4A90E2] hover:text-[#4A90E2] transition-colors">
                     2
                   </button>
-                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#8F2B53] hover:text-[#8F2B53] transition-colors">
+                  <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-[#4A90E2] hover:text-[#4A90E2] transition-colors">
                     Next
                   </button>
                 </div>

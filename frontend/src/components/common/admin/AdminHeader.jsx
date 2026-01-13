@@ -1,70 +1,114 @@
 import React, { useState } from "react";
-import { FiMenu, FiX, FiShoppingBag } from "react-icons/fi";
+import { FiMenu, FiX, FiExternalLink, FiLogOut, FiUser } from "react-icons/fi";
 import { logout } from "./../../../redux/authSlice/authSlice";
 import Swal from "sweetalert2";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import logo from "./../../../assets/logo.png";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import logo from "./../../../assets/Marotix-Logo.png";
+
 export default function AdminHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
 
   const handleLogout = () => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You will be logged out of your account.",
+      title: "Logout?",
+      text: "Are you sure you want to exit the admin panel?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, Logout",
       cancelButtonText: "Cancel",
+      confirmButtonColor: "#2C3E50", 
+      cancelButtonColor: "#9CA3AF",
+      background: "#FFFFFF",
+      color: "#2C3E50",
+      reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(logout());
         navigate("/");
+        Swal.fire({
+          icon: "success",
+          title: "Logged Out",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     });
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="flex justify-between items-center h-14 sm:h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <div className="flex items-center gap-2">
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 sm:h-20">
+          {/* Left Side: Logo (Mobile only) */}
+          <div className="flex items-center gap-4 md:hidden">
+            <Link to="/admin-dashboard" className="flex items-center">
               <img
                 src={logo}
-                alt="ShopNow Logo"
-                className="h-8 sm:h-10 w-auto"
+                alt="Marotix Logo"
+                className="h-10 w-auto object-contain"
               />
+            </Link>
+          </div>
+
+          {/* Spacer for desktop to push actions to the right */}
+          <div className="hidden md:block flex-1"></div>
+
+          {/* Right Side: Actions */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#4A90E2] transition-colors"
+            >
+              <FiExternalLink className="w-4 h-4" />
+              <span>View Website</span>
+            </Link>
+            
+            <div className="h-6 w-px bg-gray-200"></div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end mr-1">
+                <span className="text-sm font-bold text-gray-900 leading-tight">
+                  {user?.name || "Admin"}
+                </span>
+                <span className="text-xs text-gray-500 font-medium">
+                  Super Admin
+                </span>
+              </div>
+              <div className="w-10 h-10 bg-[#4A90E2]/10 rounded-full flex items-center justify-center text-[#4A90E2] border border-[#4A90E2]/20 shadow-sm">
+                <FiUser className="w-5 h-5" />
+              </div>
             </div>
 
-            {/* <div className="flex items-center gap-2">
-              <FiShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600" />
-              <h1 className="text-xl sm:text-2xl font-bold text-indigo-600">
-                ShopNow
-              </h1>
-            </div> */}
-          </div>
-          <div className="hidden sm:flex items-center">
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium cursor-pointer transition-colors duration-200"
+              className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 group"
+              title="Logout"
             >
-              Logout
+              <FiLogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </button>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex sm:hidden items-center">
+          <div className="flex md:hidden items-center gap-3">
+            <Link
+              to="/"
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              title="View Website"
+            >
+              <FiExternalLink className="w-5 h-5" />
+            </Link>
             <button
-              className="p-2 text-gray-700 hover:text-indigo-600 transition-colors"
+              className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
-                <FiX className="h-5 w-5" />
+                <FiX className="h-6 w-6 text-[#4A90E2]" />
               ) : (
-                <FiMenu className="h-5 w-5" />
+                <FiMenu className="h-6 w-6" />
               )}
             </button>
           </div>
@@ -73,16 +117,27 @@ export default function AdminHeader() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-gray-200 shadow-lg">
-          <div className="px-3 py-4">
+        <div className="md:hidden bg-white border-t border-gray-100 shadow-2xl absolute w-full animate-in slide-in-from-top-4 duration-200">
+          <div className="px-4 py-6 space-y-4">
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
+              <div className="w-12 h-12 bg-[#4A90E2] rounded-full flex items-center justify-center text-white shadow-md">
+                <FiUser className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">{user?.name || "Admin"}</p>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Super Admin</p>
+              </div>
+            </div>
+            
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 handleLogout();
               }}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-base font-medium cursor-pointer transition-colors duration-200"
+              className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-gray-900 text-white rounded-2xl hover:bg-black transition-all font-bold shadow-lg shadow-gray-200"
             >
-              Logout
+              <FiLogOut className="w-5 h-5" />
+              <span>Logout Session</span>
             </button>
           </div>
         </div>
@@ -90,149 +145,3 @@ export default function AdminHeader() {
     </header>
   );
 }
-
-// import React, { useState } from "react";
-// import {
-//   FiSearch,
-//   FiShoppingCart,
-//   FiHeart,
-//   FiUser,
-//   FiMenu,
-//   FiX,
-// } from "react-icons/fi";
-// import { logout } from "./../../../redux/authSlice/authSlice";
-// import Swal from "sweetalert2";
-// import { useDispatch } from "react-redux";
-// import { Link, useNavigate } from "react-router-dom";
-
-// export default function AdminHeader() {
-//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState("");
-
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//     Swal.fire({
-//       title: "Are you sure?",
-//       text: "You will be logged out of your account.",
-//       icon: "warning",
-//       showCancelButton: true,
-//       confirmButtonText: "Yes, Logout",
-//       cancelButtonText: "Cancel",
-//     }).then((result) => {
-//       if (result.isConfirmed) {
-//         dispatch(logout());
-//         navigate("/");
-//       }
-//     });
-//   };
-
-//   const navItems = [
-//     { name: "Home", to: "/" },
-//     { name: "Shop", to: "/shop" },
-//     { name: "Contact", to: "#" },
-//   ];
-
-//   return (
-//     <>
-//       <header className="bg-white shadow-sm sticky top-0 z-50">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16">
-//             <div className="flex-shrink-0 flex items-center">
-//               <h1 className="text-2xl font-bold text-indigo-600">ShopNow</h1>
-//             </div>
-
-//             <nav className="hidden md:flex space-x-8">
-//               {navItems.map((item) => (
-//                 <Link
-//                   key={item.name}
-//                   to={item.to}
-//                   className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors"
-//                 >
-//                   {item.name}
-//                 </Link>
-//               ))}
-//             </nav>
-
-//             <div className="flex items-center space-x-4">
-//               <div className="hidden md:block relative">
-//                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-//                   <FiSearch className="text-gray-400" />
-//                 </div>
-//                 <input
-//                   type="text"
-//                   placeholder="Search products..."
-//                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-//                   value={searchQuery}
-//                   onChange={(e) => setSearchQuery(e.target.value)}
-//                 />
-//               </div>
-
-//               <button className="relative p-2 text-gray-700 hover:text-indigo-600">
-//                 <FiShoppingCart className="h-6 w-6" />
-//                 <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-indigo-600 text-xs text-white font-bold">
-//                   3
-//                 </span>
-//               </button>
-
-//               <button className="p-2 text-gray-700 hover:text-indigo-600">
-//                 <FiHeart className="h-6 w-6" />
-//               </button>
-
-//               <button className="p-2 text-gray-700 hover:text-indigo-600">
-//                 <FiUser className="h-6 w-6" />
-//               </button>
-//               <button
-//                 onClick={handleLogout}
-//                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium cursor-pointer"
-//               >
-//                 Logout
-//               </button>
-//               <button
-//                 className="md:hidden p-2 text-gray-700"
-//                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-//               >
-//                 {mobileMenuOpen ? (
-//                   <FiX className="h-6 w-6" />
-//                 ) : (
-//                   <FiMenu className="h-6 w-6" />
-//                 )}
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-
-//         {mobileMenuOpen && (
-//           <div className="md:hidden bg-white border-t border-gray-200">
-//             <div className="px-2 pt-2 pb-3 space-y-1">
-//               {navItems.map((item) => (
-//                 <a
-//                   key={item.name}
-//                   href={item.href}
-//                   className="text-gray-700 hover:text-indigo-600 block px-3 py-2 text-base font-medium"
-//                 >
-//                   {item.name}
-//                 </a>
-//               ))}
-//               <div className="px-3 py-2">
-//                 <div className="relative mt-1">
-//                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-//                     <FiSearch className="text-gray-400" />
-//                   </div>
-//                   <input
-//                     type="text"
-//                     placeholder="Search products..."
-//                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-//                     value={searchQuery}
-//                     onChange={(e) => setSearchQuery(e.target.value)}
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </header>
-//     </>
-//   );
-// }

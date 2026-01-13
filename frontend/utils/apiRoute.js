@@ -71,6 +71,8 @@ export const ORDER_ROUTES = {
   update: (id) => `/updatestatus/${id}/status`,
   delete: (id) => `/delete-oder/${id}`,
   userOrders: "/user-orders",
+  analytics: "/analytics",
+  recent: "/recent",
 };
 
 export const CONTACT_ROUTES = {

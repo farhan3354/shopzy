@@ -87,7 +87,7 @@ const ProductCard = ({
                 alt={product?.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold">
+              <div className="absolute top-2 left-2 bg-[#FFD166] text-black px-2 py-1 text-xs font-semibold">
                 {productData.discount}% OFF
               </div>
             </div>
@@ -97,8 +97,8 @@ const ProductCard = ({
             type="button"
             className={`absolute top-2 right-2 rounded-full p-2 transition-all duration-300 ${
               isInWishlist
-                ? "bg-red-500 text-white shadow-lg"
-                : "bg-white text-gray-600 shadow-md hover:bg-red-500 hover:text-white"
+                ? "bg-[#4A90E2] text-white shadow-lg"
+                : "bg-white text-gray-600 shadow-md hover:bg-[#4A90E2] hover:text-white"
             }`}
             onClick={(e) => {
               e.preventDefault();
@@ -115,7 +115,7 @@ const ProductCard = ({
           </p>
 
           <Link to={`/product/${product._id}`}>
-            <h3 className="text-sm font-normal text-gray-900 leading-tight mb-2 line-clamp-2 hover:text-red-600 transition-colors duration-200 min-h-[40px]">
+            <h3 className="text-sm font-normal text-gray-900 leading-tight mb-2 line-clamp-2 hover:text-[#4A90E2] transition-colors duration-200 min-h-[40px]">
               {product?.name}
             </h3>
           </Link>
@@ -146,7 +146,7 @@ const ProductCard = ({
               <p className="text-sm text-gray-500 line-through">
                 {productData.originalPrice}
               </p>
-              <p className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+              <p className="text-xs font-semibold text-[#4A90E2] bg-[#E3F2FD] px-1.5 py-0.5 rounded">
                 {productData.discount}% OFF
               </p>
             </div>

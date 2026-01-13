@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import useFetchData from "../hooks/useFetchData";
 import { CartLoading } from "../components/common/LoadingSpinner";
 import { updateCartCount } from "../redux/authSlice/cartSlice";
+import CartBanner from "../assets/CartBanner.png";
 
 export default function CartPage() {
   const [cart, setCart] = useState(null);
@@ -122,31 +123,7 @@ export default function CartPage() {
     }
   };
 
-  // const removeItem = async (itemId) => {
-  //   const confirm = await Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "Do you want to remove this item from your cart?",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#3085d6",
-  //     confirmButtonText: "Yes, remove it",
-  //     cancelButtonText: "Cancel",
-  //   });
-
-  //   if (!confirm.isConfirmed) return;
-
-  //   try {
-  //     await deleteDataCart("/cart/remove", { itemId }, "Item removed from cart");
-  //     setCart((prevCart) => ({
-  //       ...prevCart,
-  //       items: prevCart.items.filter((item) => item._id !== itemId),
-  //     }));
-  //   } catch (error) {
-  //     console.error("❌ Error removing item:", error);
-  //   }
-  // };
-  const dispatch = useDispatch();
+const dispatch = useDispatch();
   const removeItem = async (itemId) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -154,7 +131,7 @@ export default function CartPage() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      cancelButtonColor: "#357ABD",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     });
@@ -164,13 +141,11 @@ export default function CartPage() {
     try {
       await deleteDataCart("/cart/remove", { itemId }, "Item removed from cart");
 
-      // Update local state
       setCart((prevCart) => ({
         ...prevCart,
         items: prevCart.items.filter((item) => item._id !== itemId),
       }));
 
-      // Update cart count in Redux
       dispatch(updateCartCount());
     } catch (error) {
       console.error("❌ Error removing item:", error);
@@ -258,9 +233,8 @@ export default function CartPage() {
   const shippingCharge = 100;
   const calculateTotal = () => calculateSubtotal() + shippingCharge;
 
-  // ✅ FIXED: Calculate discounted price for display
   const getDiscountedPrice = (price) => {
-    return Math.round(price * 2.5); // 150% markup for display
+    return Math.round(price * 2.5); 
   };
 
   const getDiscountPercentage = (price) => {
@@ -302,7 +276,7 @@ export default function CartPage() {
                 onClick={(e) => handleQuantitySelect(quantity, e)}
                 className={`component-OptionItemBox py-3 px-4 rounded-lg border-2 text-center font-semibold transition-all ${
                   tempQuantity === quantity
-                    ? "border-[#8F2B53] bg-[#f6e9ee] text-[#8F2B53]"
+                    ? "border-[#4A90E2] bg-[#E3F2FD] text-[#4A90E2]"
                     : "border-gray-300 bg-white text-gray-900 hover:border-gray-400"
                 }`}
               >
@@ -335,7 +309,7 @@ export default function CartPage() {
           <button
             onClick={handleQuantityDone}
             disabled={updatingItems[selectedItem?._id]}
-            className="w-full bg-[#8F2B53] text-white py-4 rounded-lg font-semibold hover:bg-[#7a2450] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#4A90E2] text-white py-4 rounded-lg font-semibold hover:bg-[#357ABD] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updatingItems[selectedItem?._id] ? "Updating..." : "Done"}
           </button>
@@ -386,7 +360,7 @@ export default function CartPage() {
                         }
                         className={`px-4 py-2 text-sm border-2 rounded-lg transition-all ${
                           tempAttributes[attribute.name] === value
-                            ? "border-[#8F2B53] bg-[#f6e9ee] text-[#8F2B53] font-semibold"
+                            ? "border-[#4A90E2] bg-[#E3F2FD] text-[#4A90E2] font-semibold"
                             : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
                         }`}
                       >
@@ -401,7 +375,7 @@ export default function CartPage() {
           <button
             onClick={handleAttributesDone}
             disabled={updatingItems[selectedItem?._id]}
-            className="w-full bg-[#8F2B53] text-white py-4 rounded-lg font-semibold hover:bg-[#7a2450] transition disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            className="w-full bg-[#4A90E2] text-white py-4 rounded-lg font-semibold hover:bg-[#357ABD] transition disabled:opacity-50 disabled:cursor-not-allowed mt-4"
           >
             {updatingItems[selectedItem?._id] ? "Updating..." : "Done"}
           </button>
@@ -412,25 +386,6 @@ export default function CartPage() {
 
   if (loading) {
     return <CartLoading />;
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <FiShoppingCart className="text-5xl text-gray-400 mx-auto mb-4" />
-          <p className="text-lg text-gray-600 mb-6">
-            {error || "Cart not found"}
-          </p>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition"
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
   }
 
   if (!cart || cart.items.length === 0) {
@@ -470,22 +425,39 @@ export default function CartPage() {
           animation: slide-up 0.3s ease-out;
         }
       `}</style>
-
-      <div
+<div
+  className="component-BannerImage animateFadeInForCLS w-full"
+  style={{ margin: "0px" }}
+>
+  <a href="/cart" className="block w-full">
+    <div className="flex justify-center w-full" style={{ height: "300px" }}>
+      <img
+        alt="marotix-app-download"
+        src={CartBanner}
+        className="w-full h-full object-cover"
+        style={{ 
+          borderRadius: "0px",
+          display: "block"
+        }}
+      />
+    </div>
+  </a>
+</div>
+      {/* <div
         className="component-BannerImage animateFadeInForCLS"
         style={{ margin: "0px" }}
       >
         <a href="/cart">
           <div className="flex justify-center" style={{ height: "100%" }}>
             <img
-              alt="aramya-app-download"
-              src="https://cdn.shopify.com/s/files/1/0803/1807/1063/files/4_af606352-2da8-4089-bb27-0bcdb05ac08d_585x.jpg?v=1758529607"
+              alt="marotix-app-download"
+              src={CartBanner}
               className="mx-auto img-fluid"
               style={{ borderRadius: "0px" }}
             />
           </div>
         </a>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -544,7 +516,7 @@ export default function CartPage() {
                         <p className="text-sm text-gray-500 line-through">
                           ₹{discountedPrice}
                         </p>
-                        <p className="text-sm text-red-600 font-medium">
+                        <p className="text-sm text-[#4A90E2] font-medium">
                           -{discountPercentage}%
                         </p>
                       </div>
@@ -613,10 +585,10 @@ export default function CartPage() {
                           fill="none"
                           viewBox="0 0 15 15"
                           className="w-4 h-4"
-                          style={{ fill: "rgb(143, 42, 83)" }}
+                          style={{ fill: "rgb(74, 144, 226)" }}
                         >
                           <path
-                            stroke="#8F2B53"
+                            stroke="#4A90E2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth="0.883"

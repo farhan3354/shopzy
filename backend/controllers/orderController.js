@@ -263,7 +263,7 @@ export const getOrderAnalytics = async (req, res) => {
     const revenueData = await Order.aggregate([
       {
         $match: {
-          paymentStatus: "completed",
+          orderStatus: { $ne: "cancelled" },
           createdAt: { $gte: startDate },
         },
       },
@@ -294,7 +294,7 @@ export const getOrderAnalytics = async (req, res) => {
     const monthlyRevenue = await Order.aggregate([
       {
         $match: {
-          paymentStatus: "completed",
+          orderStatus: { $ne: "cancelled" },
           createdAt: { $gte: startDate },
         },
       },

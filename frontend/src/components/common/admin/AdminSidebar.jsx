@@ -1,30 +1,47 @@
 import React, { useState } from "react";
-import { MdDashboard, MdAddBox, MdInventory } from "react-icons/md";
+import { 
+  MdDashboard, 
+  MdAddBox, 
+  MdInventory, 
+  MdListAlt,
+  MdPeople,
+  MdStorefront,
+  MdConfirmationNumber,
+  MdQuestionAnswer,
+  MdMessage,
+  MdPayments
+} from "react-icons/md";
 import { FaUserFriends, FaStore } from "react-icons/fa";
 import { CgMenu } from "react-icons/cg";
 import { RxCross2 } from "react-icons/rx";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { adminsidebarmenu } from "./../../../data/data";
-import { MdListAlt } from "react-icons/md";
 
 export default function AdminSidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const iconsComponent = {
     MdDashboard: MdDashboard,
-    FaStore: FaStore,
-    FaUserFriends: FaUserFriends,
-    MdInventory: MdInventory,
+    FaUserFriends: FaUserFriends, // or MdPeople
+    FaStore: FaStore, // or MdStorefront
     MdAddBox: MdAddBox,
+    MdInventory: MdInventory,
     MdListAlt: MdListAlt,
+  };
+
+  // Helper to fallback to MdListAlt if icon not found
+  const getIcon = (iconName) => {
+    const Icon = iconsComponent[iconName] || MdListAlt;
+    return <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />;
   };
 
   return (
     <>
-      <div className="lg:hidden p-4">
+      {/* Mobile Toggle Button (Visible only on mobile) */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-[60]">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="inline-flex items-center justify-center p-2 rounded-md bg-white shadow-md text-gray-700 hover:text-purple-600 focus:outline-none"
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-[#4A90E2] shadow-2xl text-white hover:bg-[#357ABD] focus:outline-none transition-all active:scale-95"
           aria-label="Toggle menu"
         >
           {isMobileMenuOpen ? (
@@ -35,41 +52,118 @@ export default function AdminSidebar() {
         </button>
       </div>
 
+      {/* Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[55] transition-opacity duration-300"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-lg text-gray-800 transition-transform duration-300 ease-in-out z-50
-        ${isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full"} 
-        lg:translate-x-0 lg:w-64 lg:relative lg:shadow-none`}
+        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-100 shadow-xl lg:shadow-none text-gray-800 transition-all duration-300 ease-in-out z-[58]
+        ${isMobileMenuOpen ? "translate-x-0 w-[280px]" : "-translate-x-full"} 
+        lg:translate-x-0 lg:w-[280px] lg:relative lg:block`}
       >
-        <div className="p-6 h-full overflow-y-auto">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight">
-            Dashboard
-          </h2>
+        <div className="flex flex-col h-full bg-white">
+          {/* Sidebar Header / Branding */}
+          <div className="px-6 py-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-black text-xl italic">M</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-gray-900 tracking-tighter uppercase italic leading-none">
+                  Marotix
+                </h2>
+                <p className="text-[10px] font-bold text-[#4A90E2] uppercase tracking-[0.2em] mt-1">
+                  Admin Panel
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <nav className="flex flex-col space-y-2">
-            {adminsidebarmenu.map((item, index) => {
-              const IconComp = iconsComponent[item.icon];
-              return (
-                <Link
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-1 custom-scrollbar">
+            <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 mt-2">
+              Main Menu
+            </p>
+            
+            <nav className="space-y-1.5">
+              {adminsidebarmenu.map((item, index) => (
+                <NavLink
                   key={index}
                   to={item.to}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                  end={item.to === "/admin-dashboard"}
                   onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) => `
+                    group flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-200
+                    ${isActive 
+                      ? "bg-[#4A90E2]/10 text-[#4A90E2] font-bold shadow-sm shadow-[#4A90E2]/5" 
+                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-semibold"
+                    }
+                  `}
                 >
-                  {IconComp && <IconComp />}
-                  <span className="text-sm font-medium">{item.title}</span>
-                </Link>
-              );
-            })}
-          </nav>
+                  {({ isActive }) => (
+                    <>
+                      <div className={`
+                        transition-colors duration-200
+                        ${isActive ? "text-[#4A90E2]" : "text-gray-400 group-hover:text-gray-600"}
+                      `}>
+                        {getIcon(item.icon)}
+                      </div>
+                      <span className="text-sm tracking-tight">{item.title}</span>
+                      
+                      {isActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#4A90E2]" />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+
+            <div className="pt-8 px-4">
+              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <p className="text-xs font-bold text-gray-400 mb-2">QUICK TIP</p>
+                <p className="text-[11px] text-gray-600 leading-relaxed font-medium font-['Inter']">
+                  Use the <span className="text-[#4A90E2] font-bold">View Website</span> link in the header to check changes live on the storefront.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Branding */}
+          <div className="p-6 border-t border-gray-50">
+            <div className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <MdStorefront className="text-gray-400" />
+              </div>
+              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                v2.4.0 Stable
+              </p>
+            </div>
+          </div>
         </div>
       </aside>
+
+      {/* Custom styles for the sidebar scrollbar */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
+        }
+      `}} />
     </>
   );
 }

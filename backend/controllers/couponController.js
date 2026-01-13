@@ -39,9 +39,6 @@ export const createCoupon = async (req, res) => {
         .json({ success: false, message: "All the fields are required" });
     }
 
-    // Validate cashback coupon
-
-
     const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
     if (existingCoupon) {
       return res.status(400).json({
@@ -92,151 +89,6 @@ export const createCoupon = async (req, res) => {
     });
   }
 };
-
-// function validateCouponApplicability(coupon, cartItems) {
-//   if (coupon.applicableTo === "all") return true;
-
-//   if (coupon.applicableTo === "categories") {
-//     return cartItems.some((item) =>
-//       coupon.categories.includes(item.productId?.category)
-//     );
-//   }
-
-//   if (coupon.applicableTo === "subcategories") {
-//     return cartItems.some((item) =>
-//       coupon.subcategories.includes(item.productId?.subcategory)
-//     );
-//   }
-
-//   return false;
-// }
-
-// export const validateCoupon = async (req, res) => {
-//   try {
-//     const {
-//       code,
-//       cartTotal,
-//       cartItems = [],
-//       cartLength,
-//       totalQuantity,
-//     } = req.body;
-//     const userId = req.user.id;
-
-//     if (!code) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Coupon code is required",
-//       });
-//     }
-
-//     const coupon = await Coupon.findOne({
-//       code: code.toUpperCase(),
-//       isActive: true,
-//       startDate: { $lte: new Date() },
-//       endDate: { $gte: new Date() },
-//     });
-
-//     if (!coupon) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Invalid or expired coupon code",
-//       });
-//     }
-
-//     // For cashback coupons, ensure they are percentage type
-//     if (
-//       coupon.coupantype === "cashback" &&
-//       coupon.discountType !== "percentage"
-//     ) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid cashback coupon configuration",
-//       });
-//     }
-
-//     if (
-//       coupon.totalUsageLimit &&
-//       coupon.currentUsageCount >= coupon.totalUsageLimit
-//     ) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Coupon usage limit reached globally",
-//       });
-//     }
-
-//     const userUsageCount = await CouponUsage.countDocuments({
-//       couponCode: coupon.code,
-//       userId,
-//     });
-
-//     if (userUsageCount >= coupon.perUserLimit) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "You have already used this coupon the maximum allowed times",
-//       });
-//     }
-
-//     // Check minimum order amount
-//     if (cartTotal < coupon.minimumOrderAmount) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Minimum order amount must be ₹${coupon.minimumOrderAmount} to use this coupon.`,
-//       });
-//     }
-
-//     // Check minimum quantity
-//     if (totalQuantity < coupon.minmumOrderQuanitity) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Minimum ${coupon.minmumOrderQuanitity} items required to use this coupon.`,
-//       });
-//     }
-
-//     if (!validateCouponApplicability(coupon, cartItems)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "This coupon does not apply to your cart items",
-//       });
-//     }
-
-//     const discountAmount = calculateDiscountAmount(coupon, cartTotal);
-
-//     // ✅ FIX: For cashback coupons, final amount doesn't include discount
-//     const finalAmount =
-//       coupon.coupantype === "cashback"
-//         ? cartTotal // No discount applied at checkout for cashback
-//         : cartTotal - discountAmount; // Normal discount for regular coupons
-
-//     return res.json({
-//       success: true,
-//       message: "Coupon validated successfully",
-//       coupon: {
-//         code: coupon.code,
-//         name: coupon.name,
-//         description: coupon.description,
-//         discountType: coupon.discountType,
-//         discountValue: coupon.discountValue,
-//         discountAmount,
-//         finalAmount,
-//         perUserLimit: coupon.perUserLimit,
-//         remainingUserLimit: coupon.perUserLimit - userUsageCount,
-//         coupantype: coupon.coupantype, // ✅ IMPORTANT: Include coupantype
-//         isCashback: coupon.coupantype === "cashback",
-//         maxDiscountAmount: coupon.maxDiscountAmount,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Validate coupon error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Failed to validate coupon",
-//     });
-//   }
-// };
-
-
-
-// EXISTING FUNCTIONS (keep your existing ones)
 
 export const getAllCoupons = async (req, res) => {
   try {
@@ -312,7 +164,8 @@ export const updateCoupon = async (req, res) => {
 
 export const deleteCoupon = async (req, res) => {
   try {
-    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    const coupon = await Coupon.findByIdAndDelete(id);
 
     if (!coupon) {
       return res.status(404).json({
@@ -531,30 +384,6 @@ const handleReferralCode = async (referral, userId, cartTotal, res) => {
   });
 };
 
-// Helper function to calculate discount amount
-// const calculateDiscountAmount = (coupon, cartTotal) => {
-//   let discountAmount = 0;
-
-//   if (coupon.discountType === "percentage") {
-//     discountAmount = (cartTotal * coupon.discountValue) / 100;
-
-//     // Apply maximum discount limit if set
-//     if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
-//       discountAmount = coupon.maxDiscountAmount;
-//     }
-//   } else if (coupon.discountType === "fixed") {
-//     discountAmount = coupon.discountValue;
-
-//     // Ensure discount doesn't exceed cart total
-//     if (discountAmount > cartTotal) {
-//       discountAmount = cartTotal;
-//     }
-//   }
-
-//   return Math.round(discountAmount * 100) / 100; // Round to 2 decimal places
-// };
-
-// Helper function to validate coupon applicability to cart items
 const validateCouponApplicability = (coupon, cartItems) => {
   // If no specific products/categories are set, coupon applies to all items
   if (
@@ -614,6 +443,143 @@ export const trackCouponUsage = async (
 };
 
 
+// function validateCouponApplicability(coupon, cartItems) {
+//   if (coupon.applicableTo === "all") return true;
 
+//   if (coupon.applicableTo === "categories") {
+//     return cartItems.some((item) =>
+//       coupon.categories.includes(item.productId?.category)
+//     );
+//   }
 
+//   if (coupon.applicableTo === "subcategories") {
+//     return cartItems.some((item) =>
+//       coupon.subcategories.includes(item.productId?.subcategory)
+//     );
+//   }
 
+//   return false;
+// }
+
+// export const validateCoupon = async (req, res) => {
+//   try {
+//     const {
+//       code,
+//       cartTotal,
+//       cartItems = [],
+//       cartLength,
+//       totalQuantity,
+//     } = req.body;
+//     const userId = req.user.id;
+
+//     if (!code) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Coupon code is required",
+//       });
+//     }
+
+//     const coupon = await Coupon.findOne({
+//       code: code.toUpperCase(),
+//       isActive: true,
+//       startDate: { $lte: new Date() },
+//       endDate: { $gte: new Date() },
+//     });
+
+//     if (!coupon) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Invalid or expired coupon code",
+//       });
+//     }
+
+//     // For cashback coupons, ensure they are percentage type
+//     if (
+//       coupon.coupantype === "cashback" &&
+//       coupon.discountType !== "percentage"
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid cashback coupon configuration",
+//       });
+//     }
+
+//     if (
+//       coupon.totalUsageLimit &&
+//       coupon.currentUsageCount >= coupon.totalUsageLimit
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Coupon usage limit reached globally",
+//       });
+//     }
+
+//     const userUsageCount = await CouponUsage.countDocuments({
+//       couponCode: coupon.code,
+//       userId,
+//     });
+
+//     if (userUsageCount >= coupon.perUserLimit) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "You have already used this coupon the maximum allowed times",
+//       });
+//     }
+
+//     // Check minimum order amount
+//     if (cartTotal < coupon.minimumOrderAmount) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Minimum order amount must be ₹${coupon.minimumOrderAmount} to use this coupon.`,
+//       });
+//     }
+
+//     // Check minimum quantity
+//     if (totalQuantity < coupon.minmumOrderQuanitity) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Minimum ${coupon.minmumOrderQuanitity} items required to use this coupon.`,
+//       });
+//     }
+
+//     if (!validateCouponApplicability(coupon, cartItems)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "This coupon does not apply to your cart items",
+//       });
+//     }
+
+//     const discountAmount = calculateDiscountAmount(coupon, cartTotal);
+
+//     // ✅ FIX: For cashback coupons, final amount doesn't include discount
+//     const finalAmount =
+//       coupon.coupantype === "cashback"
+//         ? cartTotal // No discount applied at checkout for cashback
+//         : cartTotal - discountAmount; // Normal discount for regular coupons
+
+//     return res.json({
+//       success: true,
+//       message: "Coupon validated successfully",
+//       coupon: {
+//         code: coupon.code,
+//         name: coupon.name,
+//         description: coupon.description,
+//         discountType: coupon.discountType,
+//         discountValue: coupon.discountValue,
+//         discountAmount,
+//         finalAmount,
+//         perUserLimit: coupon.perUserLimit,
+//         remainingUserLimit: coupon.perUserLimit - userUsageCount,
+//         coupantype: coupon.coupantype, // ✅ IMPORTANT: Include coupantype
+//         isCashback: coupon.coupantype === "cashback",
+//         maxDiscountAmount: coupon.maxDiscountAmount,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Validate coupon error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to validate coupon",
+//     });
+//   }
+// };

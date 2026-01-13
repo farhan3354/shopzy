@@ -39,6 +39,36 @@ export const getAttributes = async (req, res) => {
   }
 };
 
+export const updateAttribute = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, values, subcategory, Fieldtype } = req.body;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Id is required" });
+    }
+
+    const updatedAttribute = await Attribute.findByIdAndUpdate(
+      id,
+      { name, values, subcategory, Fieldtype },
+      { new: true }
+    ).populate("subcategory");
+
+    if (!updatedAttribute) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Attribute not found" });
+    }
+
+    return res.status(200).json({ success: true, data: updatedAttribute });
+  } catch (error) {
+    console.error("Error updating attribute:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 export const deleteAttribute = async (req, res) => {
   try {
     const { id } = req.params;

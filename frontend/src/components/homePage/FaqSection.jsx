@@ -240,8 +240,8 @@ export default function FaqSection() {
         Frequently Asked Questions
       </h2>
       <div className="relative w-[70%] mx-auto my-6">
-        <div className="border-t border-[#9B3232]"></div>
-        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#9B3232] rotate-45"></div>
+        <div className="border-t border-[#4A90E2]"></div>
+        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#4A90E2] rotate-45"></div>
       </div>
       <div className="max-w-2xl mx-auto text-left">
         {faqs.map((faq, i) => (

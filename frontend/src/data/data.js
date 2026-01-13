@@ -151,11 +151,7 @@ export const adminsidebarmenu = [
     title: "Payments",
     icon: "MdListAlt",
     to: "/admin-dashboard/payment",
-  } ,{
-    title: "Footer",
-    icon: "MdInventory",
-    to: "/admin-dashboard/footer",
-  },
+  } 
 
 ];
 

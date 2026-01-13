@@ -25,7 +25,7 @@ import AllUser from "./pages/adminDashboard/AllUser";
 import AllVendor from "./pages/adminDashboard/AllVendor";
 import OrderSuccess from "./pages/OrderSuccess";
 import Checkout from "./pages/Checkoutpage";
-import Order from "./pages/vendorDashboard/Order";
+// import Order from "./pages/vendorDashboard/Order";
 import AllOders from "./pages/adminDashboard/AllOders";
 import OrderPending from "./components/admindashboard/OrderPending";
 import UserOrders from "./pages/UserPending";
@@ -41,19 +41,18 @@ import Details from "./pages/Details";
 import AddCategory from "./pages/adminDashboard/AddCategory";
 import AddSubcategory from "./pages/adminDashboard/AddSubcategory";
 import AdminFaqPage from "./components/admindashboard/AdminFaqPage";
-import AdminBanner from "./components/admindashboard/AdminBanner";
+// import AdminBanner from "./components/admindashboard/AdminBanner";
 import CategoryProducts from "./components/CategoryProducts";
-import FooterManagement from "./components/admindashboard/FooterManagement";
+// import FooterManagement from "./components/admindashboard/FooterManagement";
 import SearchPage from "./components/common/SearchPage";
 import SubcategoryProducts from "./components/SubCategoryProduct";
 import ResendVerification from "./components/Login/ResendVerification";
 import VerifyAccount from "./components/Login/VerifyAccount";
 import AdminPayment from "./components/admindashboard/AdminPayment";
-
-import EmailAnnouncement from "./components/admindashboard/EmailAnnouncement";
-import PageList from "./components/PageList";
-import PageForm from "./components/PageForm";
-import DynamicPage from "./components/DynamicPage";
+// import EmailAnnouncement from "./components/admindashboard/EmailAnnouncement";
+// import PageList from "./components/PageList";
+// import PageForm from "./components/PageForm";
+// import DynamicPage from "./components/DynamicPage";
 import About from "./pages/About";
 
 function App() {
@@ -126,9 +125,8 @@ function App() {
               <Route path="messages" element={<ContactMessage />} />
               <Route path="faq" element={<AdminFaqPage />} />
               {/* <Route path="add-banners" element={<AdminBanner />} /> */}
-              <Route path="footer" element={<FooterManagement />} />
-
-              <Route path="email" element={<EmailAnnouncement />} />
+              {/* <Route path="footer" element={<FooterManagement />} /> */}
+              {/* <Route path="email" element={<EmailAnnouncement />} /> */}
             </Route>
           </Route>
         </Routes>
