@@ -10,6 +10,7 @@ import {
   adminMiddleware,
   protect,
   vendorMiddleware,
+  allowRoles,
 } from "../middlewares/authMidddleware.js";
 import {
   getAllOrders,
@@ -20,6 +21,7 @@ import {
   getOrderAnalytics,
   getRecentOrders,
   getVendorOrders,
+  getVendorAnalytics,
 } from "../controllers/orderController.js";
 import { lockCartForCheckout } from "../middlewares/cartLockMiddleware.js";
 
@@ -77,16 +79,29 @@ router.get(
   getVendorOrders
 );
 
+router.get(
+  "/orders/vendor/analytics",
+  protect,
+  vendorMiddleware,
+  getVendorAnalytics
+);
+
 router.put(
   "/updatestatus/:id/status",
   protect,
-  adminMiddleware,
+  allowRoles("admin", "vendor"),
   updateOrderStatus
 );
-router.delete("/delete-oder/:id", protect, adminMiddleware, deleteOrder);
+router.delete(
+  "/delete-oder/:id",
+  protect,
+  allowRoles("admin", "vendor"),
+  deleteOrder
+);
 
 router.get("/analytics", protect, adminMiddleware, getOrderAnalytics);
 router.get("/recent", protect, adminMiddleware, getRecentOrders);
+
 
 router.get("/user/my-orders", protect, getUserOrders);
 router.get("/:id", protect, getOrderById);

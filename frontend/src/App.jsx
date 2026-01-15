@@ -105,8 +105,10 @@ function App() {
               <Route path="profile" element={<Profile />} />
               <Route path="subcategories" element={<AddSubcategory />} />
               <Route path="add-product" element={<ProductForm />} />
+              <Route path="edit-product/:id" element={<AdminEditProduct />} />
             </Route>
           </Route>
+
 
           <Route element={<ProtectRoute allowedRoles={["admin"]} />}>
             <Route path="/admin-dashboard" element={<AdminLayout />}>

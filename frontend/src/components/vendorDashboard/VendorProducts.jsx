@@ -216,7 +216,7 @@ export default function ProductList() {
                     Inactive
                   </button>
                   <Link
-                    to={`/admin-dashboard/edit-product/${prod._id}`}
+                    to={`/vendor/edit-product/${prod._id}`}
                     className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
                   >
                     Edit

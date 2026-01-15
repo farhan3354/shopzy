@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CartesianGrid,
   Tooltip,
@@ -12,26 +12,41 @@ import {
   YAxis,
 } from "recharts";
 import StatCard from "./StatCard";
+import api from "../../../utils/api"
+import { useSelector } from "react-redux"
 
 export default function VendorDashboard() {
   const [timeRange, setTimeRange] = useState("7d");
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    revenue: 0,
+    orders: 0,
+    products: 0,
+    customers: 0,
+  });
+  const [salesData, setSalesData] = useState([]);
+  const token = useSelector(state => state.auth.token);
 
-  const statsData = {
-    revenue: 45678.9,
-    orders: 1234,
-    products: 89,
-    customers: 567,
-  };
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("/getall-orders/orders/vendor/analytics", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          setStats(response.data.data.stats);
+          setSalesData(response.data.data.salesData);
+        }
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const salesData = [
-    { date: "Mon", sales: 4200 },
-    { date: "Tue", sales: 3800 },
-    { date: "Wed", sales: 5100 },
-    { date: "Thu", sales: 4600 },
-    { date: "Fri", sales: 6200 },
-    { date: "Sat", sales: 7800 },
-    { date: "Sun", sales: 5900 },
-  ];
+    fetchAnalytics();
+  }, [token]);
 
   const categoryData = [
     { name: "Electronics", value: 45, color: "#3B82F6" },
@@ -39,6 +54,14 @@ export default function VendorDashboard() {
     { name: "Books", value: 15, color: "#F59E0B" },
     { name: "Home & Garden", value: 10, color: "#EF4444" },
   ];
+
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -65,10 +88,10 @@ export default function VendorDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Revenue" value={statsData.revenue} prefix="$" />
-          <StatCard title="Orders" value={statsData.orders} />
-          <StatCard title="Products" value={statsData.products} />
-          <StatCard title="Customers" value={statsData.customers} />
+          <StatCard title="Revenue" value={stats.revenue} prefix="₹" />
+          <StatCard title="Orders" value={stats.orders} />
+          <StatCard title="Products" value={stats.products} />
+          <StatCard title="Customers" value={stats.customers} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -79,9 +102,9 @@ export default function VendorDashboard() {
             <ResponsiveContainer width="100%" height={250}>
               <AreaChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="date" tickFormatter={(value) => value.split("-").slice(1).join("/")} />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value}`, "Sales"]} />
+                <Tooltip formatter={(value) => [`₹${value}`, "Sales"]} />
                 <Area
                   type="monotone"
                   dataKey="sales"
@@ -95,7 +118,7 @@ export default function VendorDashboard() {
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Sales by Category
+              Sales by Category (Mock)
             </h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -120,3 +143,4 @@ export default function VendorDashboard() {
     </div>
   );
 }
+

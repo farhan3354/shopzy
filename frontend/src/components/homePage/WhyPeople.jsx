@@ -13,193 +13,119 @@ import { FaRegLaughBeam, FaRegGem } from "react-icons/fa";
 import { HiOutlineCurrencyRupee } from "react-icons/hi";
 
 const WhyLoveUs = () => {
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-
   const loveReasons = [
     {
       icon: FiThumbsUp,
       title: "Exceptional Quality",
       description:
         "Every product undergoes rigorous quality checks to ensure you receive only the best.",
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      stats: "99.8% Quality Satisfaction",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      stats: "99.8% Satisfaction",
     },
     {
       icon: FiAward,
-      title: "Award Winning Service",
+      title: "Trusted Service",
       description:
-        "Recognized as India's most trusted e-commerce platform for 3 consecutive years.",
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-      stats: "3 Awards Won",
+        "Recognized as one of India's most reliable e-commerce platforms.",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      stats: "Verified Seller",
     },
     {
       icon: FiTruck,
-      title: "Lightning Fast Delivery",
+      title: "Express Delivery",
       description:
-        "90% of orders delivered within 2-3 days across 1500+ cities in India.",
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-      stats: "2-3 Day Delivery",
+        "90% of our orders are delivered within 48-72 hours nationwide.",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      stats: "Ultra Fast",
     },
     {
       icon: FiShield,
-      title: "100% Secure Shopping",
+      title: "Secure Shopping",
       description:
-        "Bank-level encryption ensures your payments and data are completely safe.",
+        "State-of-the-art encryption ensures your data and payments are 100% safe.",
       color: "text-indigo-600",
-      bgColor: "bg-indigo-100",
-      stats: "SSL Secured",
-    },
-    {
-      icon: HiOutlineCurrencyRupee,
-      title: "Best Price Guarantee",
-      description:
-        "We offer the best prices with regular discounts and price match promise.",
-      color: "text-red-600",
-      bgColor: "bg-red-100",
-      stats: "Price Match Promise",
-    },
-    {
-      icon: FiHeadphones,
-      title: "24/7 Customer Support",
-      description:
-        "Our support team is available round the clock to assist you with any queries.",
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
-      stats: "2 Min Response Time",
-    },
-  ];
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      location: "Mumbai",
-      role: "Fashion Blogger",
-      rating: 5,
-      content:
-        "I've shopped from many online stores, but ShopEase stands out for their exceptional customer service and quality products. The delivery is always on time!",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
-      purchases: 24,
-    },
-    {
-      id: 2,
-      name: "Rajesh Kumar",
-      location: "Delhi",
-      role: "Tech Enthusiast",
-      rating: 5,
-      content:
-        "As a gadget lover, I appreciate their authentic products and competitive prices. Their 7-day replacement policy saved me twice!",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh",
-      purchases: 18,
-    },
-    {
-      id: 3,
-      name: "Meera Patel",
-      location: "Ahmedabad",
-      role: "Home Maker",
-      rating: 5,
-      content:
-        "The home decor collection is amazing! Quality is premium and prices are reasonable. My entire home is decorated with ShopEase products.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Meera",
-      purchases: 32,
-    },
-    {
-      id: 4,
-      name: "Aarav Singh",
-      location: "Bangalore",
-      role: "Software Engineer",
-      rating: 5,
-      content:
-        "What I love most is the transparent pricing and no hidden charges. The app experience is smooth and intuitive.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav",
-      purchases: 15,
+      bgColor: "bg-indigo-50",
+      stats: "SSL Protected",
     },
   ];
 
   const trustMetrics = [
-    { value: "4.8/5", label: "Customer Rating", icon: FiStar },
-    { value: "98%", label: "Recommend Us", icon: FiThumbsUp },
+    { value: "4.8/5", label: "Market Rating", icon: FiStar },
+    { value: "50k+", label: "Happy Shoppers", icon: FiThumbsUp },
     { value: "1500+", label: "Cities Covered", icon: FiGlobe },
-    { value: "24/7", label: "Support Available", icon: FiHeadphones },
+    { value: "24/7", label: "Expert Support", icon: FiHeadphones },
   ];
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 py-16 md:py-20">
+    <div className="bg-white py-24 sm:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <FiHeart className="w-6 h-6 text-[#4A90E2] animate-pulse" />
-            <span className="text-sm font-semibold text-[#4A90E2] uppercase tracking-wider">
-              Why People Love Us
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-3 mb-6 bg-blue-50 px-4 py-2 rounded-2xl">
+            <FiHeart className="w-5 h-5 text-blue-600 animate-pulse" />
+            <span className="text-xs font-black text-blue-600 uppercase tracking-[0.2em]">
+              The Marotix Experience
             </span>
-            <FiHeart className="w-6 h-6 text-[#4A90E2] animate-pulse" />
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Thousands of Happy Customers
-            <span className="block text-3xl md:text-4xl text-[#4A90E2] mt-2">
-              Trust Our Services Daily
-            </span>
+          <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6 tracking-tight">
+            Why Thousands <span className="text-blue-600">Trust Us</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover why customers choose us over others and become part of our
-            growing family of satisfied shoppers.
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed">
+            We don't just sell products; we deliver experiences backed by quality, speed, and unwavering security.
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 mb-20">
           {trustMetrics.map((metric, index) => {
             const Icon = metric.icon;
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-[#fafafa] rounded-[2rem] p-8 text-center border border-gray-50 hover:bg-white hover:shadow-2xl hover:shadow-gray-100 transition-all duration-500 group"
               >
-                <div className="text-3xl md:text-4xl font-bold text-[#4A90E2] mb-2">
+                <div className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 group-hover:scale-110 transition-transform">
                   {metric.value}
                 </div>
-                <div className="flex items-center justify-center gap-2 text-gray-600">
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{metric.label}</span>
+                <div className="flex items-center justify-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-wider">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{metric.label}</span>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="mb-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loveReasons.map((reason, index) => {
-              const Icon = reason.icon;
-              return (
-                <div
-                  key={index}
-                  className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
-                >
-                  <div className="flex items-start gap-5">
-                    <div
-                      className={`${reason.bgColor} p-4 rounded-2xl group-hover:scale-110 transition-transform`}
-                    >
-                      <Icon className={`w-8 h-8 ${reason.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">
-                        {reason.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">{reason.description}</p>
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {reason.stats}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
+        {/* Reasons Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {loveReasons.map((reason, index) => {
+            const Icon = reason.icon;
+            return (
+              <div
+                key={index}
+                className="group relative bg-white rounded-3xl p-8 border border-gray-100 hover:border-blue-100 transition-all duration-500 overflow-hidden"
+              >
+                <div className="relative z-10">
+                    <div className={`${reason.bgColor} ${reason.color} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                        <Icon size={24} />
+                    </div>
+                    <h3 className="text-xl font-black text-gray-900 mb-3 tracking-tight">
+                      {reason.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">
+                      {reason.description}
+                    </p>
+                    <div className="inline-block px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      {reason.stats}
+                    </div>
+                </div>
+                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-gray-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

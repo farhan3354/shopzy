@@ -2117,6 +2117,7 @@ export default function ProductForm() {
   const productType = watch("producttype");
 
   const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
   const { fetchData, uploadFile, loading } = useFetchData(token);
@@ -2476,7 +2477,11 @@ export default function ProductForm() {
       reset();
       setSelectedCheckboxes({});
       setDescription("");
-      navigate("/admin-dashboard/products");
+      
+      const redirectPath = user?.role === "admin" 
+        ? "/admin-dashboard/products" 
+        : "/vendor/products";
+      navigate(redirectPath);
     } catch (error) {
       console.error("❌ Error creating product:", error);
       Swal.fire(

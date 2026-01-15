@@ -47,38 +47,41 @@ export const venorsidebarmenu = [
     icon: "MdDashboard",
     to: "/vendor",
   },
-
+  {
+    title: "Orders",
+    icon: "MdListAlt",
+    to: "/vendor/orders",
+  },
+  {
+    title: "Products",
+    icon: "MdInventory",
+    to: "/vendor/products",
+  },
   {
     title: "Add Product",
     icon: "MdAddBox",
     to: "/vendor/add-product",
   },
   {
-    title: "See Product",
-    icon: "MdAddBox",
-    to: "/vendor/products",
-  },
-  {
     title: "Attributes",
     icon: "MdInventory",
     to: "/vendor/attributes",
   },
-
   {
     title: "Subcategory",
     icon: "MdInventory",
     to: "/vendor/subcategories",
   },
   {
-    title: "Order",
-    icon: "MdListAlt",
-    to: "/vendor/orders",
+    title: "Reports",
+    icon: "MdInventory",
+    to: "/vendor/reports",
   },
-  // {
-  //   title: "Coupans",
-  //   icon: "MdListAlt",
-  //   to: "/vendor/coupons",
-  // },
+  {
+    title: "Profile",
+    icon: "FaUserFriends",
+    to: "/vendor/profile",
+  },
 ];
 
 export const adminsidebarmenu = [

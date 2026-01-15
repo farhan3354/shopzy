@@ -59,30 +59,34 @@ export const getVendorOrders = async (req, res) => {
     const vendorId = req.user.id;
 
     const vendorProducts = await Product.find({ userId: vendorId }).select("_id");
-
-    const productIds = vendorProducts.map(p => p._id);
+    const productIds = vendorProducts.map(p => p._id.toString());
 
     const orders = await Order.find({ "items.productId": { $in: productIds } })
       .populate("userId", "name email") 
-      .populate("items.productId", "name userId"); 
+      .populate("items.productId", "name userId images"); 
 
     const filteredOrders = orders.map(order => {
       const vendorItems = order.items.filter(item =>
-        productIds.some(id => id.equals(item.productId._id))
+        productIds.includes(item.productId._id.toString())
       );
+
+      // Calculate total for only vendor's items
+      const vendorTotal = vendorItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
       return {
         _id: order._id,
         orderNumber: order.orderNumber,
-        user: order.userId,
+        userId: order.userId,
+        shippingAddress: order.shippingAddress,
         items: vendorItems,
-        totalAmount: order.totalAmount,
+        totalAmount: vendorTotal,
+        paymentStatus: order.paymentStatus,
         orderStatus: order.orderStatus,
         createdAt: order.createdAt,
       };
     });
 
-    return res.status(200).json({ success: true, orders: filteredOrders });
+    return res.status(200).json({ success: true, data: filteredOrders });
   } catch (error) {
     console.error("🔥 Error fetching vendor orders:", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -123,8 +127,12 @@ export const getOrderById = async (req, res) => {
       });
     }
 
-    // Check if user owns the order or is admin
-    if (order.userId._id.toString() !== req.user.id && !req.user.isAdmin) {
+    // Check if user owns the order, is admin, or is a vendor who has products in this order
+    const isVendorOfOrder = order.items.some(item => 
+      item.productId && item.productId.userId && item.productId.userId.toString() === req.user.id
+    );
+
+    if (order.userId._id.toString() !== req.user.id && !req.user.role === 'admin' && !isVendorOfOrder) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to access this order",
@@ -148,13 +156,25 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, trackingNumber, shippingCarrier } = req.body;
     const { id } = req.params;
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).populate("items.productId");
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
       });
+    }
+
+    // Authorization check
+    const isVendorOfOrder = order.items.some(item => 
+      item.productId && item.productId.userId && item.productId.userId.toString() === req.user.id
+    );
+
+    if (req.user.role !== 'admin' && !isVendorOfOrder) {
+        return res.status(403).json({
+            success: false,
+            message: "Not authorized to update this order"
+        });
     }
 
     const validStatuses = [
@@ -204,13 +224,25 @@ export const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).populate("items.productId");
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
       });
+    }
+
+    // Authorization check
+    const isVendorOfOrder = order.items.some(item => 
+        item.productId && item.productId.userId && item.productId.userId.toString() === req.user.id
+    );
+
+    if (req.user.role !== 'admin' && !isVendorOfOrder) {
+        return res.status(403).json({
+            success: false,
+            message: "Not authorized to delete this order"
+        });
     }
 
     if (order.paymentStatus === "completed") {
@@ -335,6 +367,76 @@ export const getOrderAnalytics = async (req, res) => {
   }
 };
 
+export const getVendorAnalytics = async (req, res) => {
+    try {
+        const vendorId = req.user.id;
+        const vendorProducts = await Product.find({ userId: vendorId }).select("_id");
+        const productIds = vendorProducts.map(p => p._id);
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Get orders containing this vendor's products
+        const orders = await Order.find({
+            "items.productId": { $in: productIds },
+            orderStatus: { $ne: "cancelled" }
+        }).populate("items.productId");
+
+        let totalRevenue = 0;
+        let totalOrders = orders.length;
+        let totalProducts = vendorProducts.length;
+        let customers = new Set();
+
+        orders.forEach(order => {
+            customers.add(order.userId.toString());
+            order.items.forEach(item => {
+                if (productIds.some(id => id.equals(item.productId._id))) {
+                    totalRevenue += (item.price * item.quantity);
+                }
+            });
+        });
+
+        // Daily sales for chart (7 days)
+        const last7Days = [...Array(7)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            return d.toISOString().split('T')[0];
+        }).reverse();
+
+        const salesData = last7Days.map(date => {
+            let dailyRevenue = 0;
+            orders.forEach(order => {
+                const orderDate = order.createdAt.toISOString().split('T')[0];
+                if (orderDate === date) {
+                    order.items.forEach(item => {
+                        if (productIds.some(id => id.equals(item.productId._id))) {
+                            dailyRevenue += (item.price * item.quantity);
+                        }
+                    });
+                }
+            });
+            return { date, sales: dailyRevenue };
+        });
+
+        res.json({
+            success: true,
+            data: {
+                stats: {
+                    revenue: totalRevenue,
+                    orders: totalOrders,
+                    products: totalProducts,
+                    customers: customers.size
+                },
+                salesData,
+                categoryData: [] // Optional: fetch category distribution if needed
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching vendor analytics:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch vendor analytics" });
+    }
+}
+
 export const getRecentOrders = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
@@ -356,3 +458,4 @@ export const getRecentOrders = async (req, res) => {
     });
   }
 };
+

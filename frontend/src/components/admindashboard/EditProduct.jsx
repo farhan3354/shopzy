@@ -38,6 +38,7 @@ export default function EditProduct() {
   const price = watch("price");
   const originalPrice = watch("originalPrice");
   const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
 
   const { fetchData, updateWithFile, loading } = useFetchData(token);
 
@@ -372,7 +373,11 @@ export default function EditProduct() {
 
       // Cleanup preview URLs
       imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.preview));
-      navigate("/admin-dashboard/products");
+      
+      const redirectPath = user?.role === "admin" 
+        ? "/admin-dashboard/products" 
+        : "/vendor/products";
+      navigate(redirectPath);
     } catch (error) {
       console.error("❌ Error updating product:", error);
       Swal.fire("Error", "Failed to update product. Please try again.", "error");
@@ -457,7 +462,7 @@ export default function EditProduct() {
               <h2 className="text-2xl font-bold text-gray-900">Edit Product</h2>
               <button
                 type="button"
-                onClick={() => navigate("/admin-dashboard/products")}
+                onClick={() => navigate(user?.role === "admin" ? "/admin-dashboard/products" : "/vendor/products")}
                 className="text-gray-600 hover:text-gray-800 font-medium"
               >
                 ← Back to Products

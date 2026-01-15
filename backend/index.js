@@ -23,7 +23,6 @@ dovenv.config();
 
 const app = express();
 
-// ✅ FIXED: Webhook middleware must come BEFORE express.json()
 const rawBodyMiddleware = (req, res, next) => {
   if (req.path === "/api/webhook") {
     let data = "";
