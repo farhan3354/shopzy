@@ -95,9 +95,11 @@ export const getVendorOrders = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.id }).sort({
-      createdAt: -1,
-    });
+    const orders = await Order.find({ userId: req.user.id })
+      .populate("items.productId", "name images")
+      .sort({
+        createdAt: -1,
+      });
 
     return res.json({
       success: true,

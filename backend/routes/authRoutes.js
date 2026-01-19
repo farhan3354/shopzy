@@ -9,6 +9,7 @@ import {
   resendVerification,
   setDefaultAddress,
   verifyAccount,
+  getUserProfile,
 } from "../controllers/authController.js";
 import { adminMiddleware, protect } from "../middlewares/authMidddleware.js";
 const router = express.Router();
@@ -30,6 +31,8 @@ router.get("/verify", protect, (req, res) => {
     user: { id: req.user.id, role: req.user.role },
   });
 });
+
+router.get("/profile", protect, getUserProfile);
 
 router.get("/customer", protect, adminMiddleware, getcustomer);
 

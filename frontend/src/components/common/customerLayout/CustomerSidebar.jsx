@@ -20,7 +20,7 @@ export default function CustomerSidebar() {
         <ul className="pt-6 space-y-4">
           <li>
             <Link
-              to="/customer"
+              to=""
               className="flex items-center gap-3 p-2 hover:bg-blue-100 rounded-md text-gray-700"
             >
               <FaHome className="text-lg" />
@@ -29,7 +29,7 @@ export default function CustomerSidebar() {
           </li>
           <li>
             <Link
-              to="/customer/orders"
+              to="orders"
               className="flex items-center gap-3 p-2 hover:bg-blue-100 rounded-md text-gray-700"
             >
               <FaShoppingBag className="text-lg" />
@@ -57,7 +57,7 @@ export default function CustomerSidebar() {
           </li> */}
           <li>
             <Link
-              to="/customer/profile"
+              to="profile"
               className="flex items-center gap-3 p-2 hover:bg-blue-100 rounded-md text-gray-700"
             >
               <FaUser className="text-lg" />
@@ -67,7 +67,7 @@ export default function CustomerSidebar() {
 
           <li>
             <Link
-              to="/customer/support"
+              to="support"
               className="flex items-center gap-3 p-2 hover:bg-blue-100 rounded-md text-gray-700"
             >
               <FaHeadset className="text-lg" />

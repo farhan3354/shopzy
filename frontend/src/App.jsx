@@ -3,14 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollTop from "./pages/ScrollTop";
 import Profile from "./pages/vendorDashboard/Profile";
 import Orders from "./pages/vendorDashboard/Order";
-import UserLayout from "./components/common/vendorLayout/VendorLayout";
 import Dashboard from "./pages/vendorDashboard/Dashboard";
 import Products from "./pages/vendorDashboard/Products";
 import Reports from "./pages/vendorDashboard/Report";
 import CustomerProfile from "./pages/customerDashboard/CustomerProfile";
 import CustomerDashboard from "./pages/customerDashboard/CustomerDashboard";
 import CustomerOrders from "./pages/customerDashboard/CustomerOrders";
-import CustomerLayout from "./components/common/customerLayout/CustomerLayout";
 import CustomerSupport from "./pages/customerDashboard/CustomerSupport";
 import EcommerceHomepage from "./pages/Home";
 import Layout from "./components/common/Layout";
@@ -41,26 +39,21 @@ import Details from "./pages/Details";
 import AddCategory from "./pages/adminDashboard/AddCategory";
 import AddSubcategory from "./pages/adminDashboard/AddSubcategory";
 import AdminFaqPage from "./components/admindashboard/AdminFaqPage";
-// import AdminBanner from "./components/admindashboard/AdminBanner";
 import CategoryProducts from "./components/CategoryProducts";
-// import FooterManagement from "./components/admindashboard/FooterManagement";
 import SearchPage from "./components/common/SearchPage";
 import SubcategoryProducts from "./components/SubCategoryProduct";
 import ResendVerification from "./components/Login/ResendVerification";
 import VerifyAccount from "./components/Login/VerifyAccount";
 import AdminPayment from "./components/admindashboard/AdminPayment";
-// import EmailAnnouncement from "./components/admindashboard/EmailAnnouncement";
-// import PageList from "./components/PageList";
-// import PageForm from "./components/PageForm";
-// import DynamicPage from "./components/DynamicPage";
 import About from "./pages/About";
+import VendorLayout from "./components/common/vendorLayout/VendorLayout";
+import UserLayout from "./components/common/customerLayout/CustomerLayout";
 
 function App() {
   return (
     <>
       <Router>
         <ScrollTop />
-
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<EcommerceHomepage />} />
@@ -88,7 +81,7 @@ function App() {
             <Route path="/order-success/:orderId" element={<OrderSuccess />} />
           </Route>
           <Route element={<ProtectRoute allowedRoles={["user", "customer"]} />}>
-            <Route path="/customer" element={<CustomerLayout />}>
+            <Route path="/user-dashboard" element={<UserLayout />}>
               <Route index element={<CustomerDashboard />} />
               <Route path="orders" element={<CustomerOrders />} />
               <Route path="support" element={<CustomerSupport />} />
@@ -96,7 +89,7 @@ function App() {
             </Route>
           </Route>
           <Route element={<ProtectRoute allowedRoles={["vendor"]} />}>
-            <Route path="/vendor" element={<UserLayout />}>
+            <Route path="/vendor" element={<VendorLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="orders" element={<Orders />} />
@@ -126,9 +119,6 @@ function App() {
               <Route path="coupons" element={<Coupons />} />
               <Route path="messages" element={<ContactMessage />} />
               <Route path="faq" element={<AdminFaqPage />} />
-              {/* <Route path="add-banners" element={<AdminBanner />} /> */}
-              {/* <Route path="footer" element={<FooterManagement />} /> */}
-              {/* <Route path="email" element={<EmailAnnouncement />} /> */}
             </Route>
           </Route>
         </Routes>

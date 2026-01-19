@@ -1,64 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Profile() {
   const [userData, setUserData] = useState({
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    phone: "+1 (555) 123-4567",
-    joinDate: "January 15, 2022",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    orders: 12,
-    totalSpent: "$1,845.00",
+    name: "",
+    email: "",
+    phone: "",
+    joinDate: "",
+    avatar: "https://via.placeholder.com/150", 
+    orders: 0,
+    totalSpent: "$0.00",
   });
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [orders, setOrders] = useState([
-    {
-      id: "#ORD-1234",
-      date: "Oct 12, 2023",
-      status: "Delivered",
-      total: "$149.99",
-    },
-    {
-      id: "#ORD-1233",
-      date: "Oct 5, 2023",
-      status: "Delivered",
-      total: "$89.99",
-    },
-    {
-      id: "#ORD-1232",
-      date: "Sep 28, 2023",
-      status: "Processing",
-      total: "$245.50",
-    },
-    {
-      id: "#ORD-1231",
-      date: "Sep 15, 2023",
-      status: "Delivered",
-      total: "$599.99",
-    },
-  ]);
+  const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
-  //   const [addresses, setAddresses] = useState([
-  //     {
-  //       id: 1,
-  //       name: "Home",
-  //       street: "123 Main Street",
-  //       city: "New York",
-  //       state: "NY",
-  //       zip: "10001",
-  //       isDefault: true,
-  //     },
-  //     {
-  //       id: 2,
-  //       name: "Work",
-  //       street: "456 Office Blvd",
-  //       city: "New York",
-  //       state: "NY",
-  //       zip: "10002",
-  //       isDefault: false,
-  //     },
-  //   ]);
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const fetchProfileData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      const [profileRes, ordersRes] = await Promise.all([
+        axios.get(`${API_URL}/profile`, config),
+        axios.get(`${API_URL}/user/my-orders`, config)
+      ]);
+
+      const user = profileRes.data.user;
+      const allOrders = ordersRes.data.data;
+      
+      const totalSpent = allOrders
+        .filter(o => o.orderStatus !== 'cancelled')
+        .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+
+      setUserData({
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "N/A",
+        joinDate: new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+        avatar: user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+        orders: allOrders.length,
+        totalSpent: `$${totalSpent.toFixed(2)}`
+      });
+
+      setOrders(allOrders.slice(0, 5).map(order => ({
+        id: order._id,
+        displayId: order.orderNumber || order._id.slice(-6).toUpperCase(),
+        date: new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        status: order.orderStatus,
+        total: `$${(order.totalAmount || 0).toFixed(2)}`
+      })));
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading profile...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -112,9 +118,9 @@ export default function Profile() {
                 <h3 className="text-lg font-medium text-gray-900">
                   Profile Information
                 </h3>
-                <button className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                {/* <button className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                   Edit
-                </button>
+                </button> */}
               </div>
               <div className="px-6 py-5">
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
@@ -159,60 +165,48 @@ export default function Profile() {
                 <h3 className="text-lg font-medium text-gray-900">
                   Recent Orders
                 </h3>
-                <button className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="/user-dashboard/orders" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                   View all
-                </button>
+                </a>
               </div>
               <div className="px-6 py-4">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Order ID
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Date
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Total
                         </th>
-                        <th scope="col" className="relative px-6 py-3">
+                        {/* <th scope="col" className="relative px-6 py-3">
                           <span className="sr-only">Actions</span>
-                        </th>
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {orders.map((order) => (
                         <tr key={order.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {order.id}
+                            #{order.displayId}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {order.date}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize 
                               ${
-                                order.status === "Delivered"
+                                order.status === "delivered"
                                   ? "bg-green-100 text-green-800"
-                                  : order.status === "Processing"
+                                  : ["processing", "pending"].includes(order.status)
                                   ? "bg-yellow-100 text-yellow-800"
                                   : "bg-gray-100 text-gray-800"
                               }`}
@@ -223,20 +217,11 @@ export default function Profile() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {order.total}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a
-                              href="#"
-                              className="text-indigo-600 hover:text-indigo-900 mr-4"
-                            >
+                          {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="#" className="text-indigo-600 hover:text-indigo-900 mr-4">
                               View
                             </a>
-                            <a
-                              href="#"
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              Reorder
-                            </a>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -244,56 +229,6 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-
-            {/* <div className="bg-white shadow overflow-hidden rounded-lg">
-              <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Saved Addresses
-                </h3>
-                <button className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                  Add new address
-                </button>
-              </div>
-              <div className="px-6 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {addresses.map((address) => (
-                    <div
-                      key={address.id}
-                      className="border rounded-lg p-4 relative"
-                    >
-                      {address.isDefault && (
-                        <span className="absolute top-2 right-2 bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                          Default
-                        </span>
-                      )}
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">
-                        {address.name}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        {address.street}
-                        <br />
-                        {address.city}, {address.state} {address.zip}
-                      </p>
-                      <div className="mt-4 flex space-x-4">
-                        <button className="text-sm text-indigo-600 hover:text-indigo-500">
-                          Edit
-                        </button>
-                        {!address.isDefault && (
-                          <button className="text-sm text-indigo-600 hover:text-indigo-500">
-                            Set as default
-                          </button>
-                        )}
-                        {!address.isDefault && (
-                          <button className="text-sm text-red-600 hover:text-red-500">
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>

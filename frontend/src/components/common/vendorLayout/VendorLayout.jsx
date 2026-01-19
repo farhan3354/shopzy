@@ -3,7 +3,7 @@ import Sidebar from "./VendorSideBar";
 import Navbar from "./VendorHeader";
 import { ToastContainer } from "react-toastify";
 
-export default function UserLayout() {
+export default function VendorLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50/50 selection:bg-blue-100 selection:text-blue-900">
       {/* Header - Fixed to top */}

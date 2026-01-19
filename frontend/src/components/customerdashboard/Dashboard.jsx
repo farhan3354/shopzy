@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FiPackage,
   FiTruck,
@@ -11,125 +12,207 @@ import {
   FiArrowUp,
   FiArrowDown,
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
-  const userData = {
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    joinDate: "January 15, 2022",
-    orders: 12,
-    totalSpent: "$1,845.00",
-  };
-
-  const recentOrders = [
-    {
-      id: "ORD-1234",
-      date: "Oct 12, 2023",
-      status: "Delivered",
-      total: "$149.99",
-      items: 3,
-    },
-    {
-      id: "ORD-1233",
-      date: "Oct 5, 2023",
-      status: "Delivered",
-      total: "$89.99",
-      items: 2,
-    },
-    {
-      id: "ORD-1232",
-      date: "Sep 28, 2023",
-      status: "Processing",
-      total: "$245.50",
-      items: 1,
-    },
-    {
-      id: "ORD-1231",
-      date: "Sep 15, 2023",
-      status: "Shipped",
-      total: "$599.99",
-      items: 4,
-    },
-  ];
-
-  const stats = [
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    joinDate: "",
+    orders: 0,
+    totalSpent: "$0.00",
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [stats, setStats] = useState([
     {
       title: "Total Orders",
-      value: 12,
-      change: "+2",
+      value: 0,
+      change: "+0",
       changeType: "up",
       icon: <FiPackage className="text-blue-500" />,
     },
     {
       title: "Pending Orders",
-      value: 1,
-      change: "-1",
-      changeType: "down",
+      value: 0,
+      change: "0",
+      changeType: "neutral",
       icon: <FiTruck className="text-yellow-500" />,
     },
     {
       title: "Delivered Orders",
-      value: 9,
-      change: "+3",
+      value: 0,
+      change: "+0",
       changeType: "up",
       icon: <FiCheckCircle className="text-green-500" />,
     },
     {
       title: "Total Spent",
-      value: "$1,845.00",
-      change: "+$245.50",
+      value: "$0.00",
+      change: "+$0.00",
       changeType: "up",
       icon: <FiDollarSign className="text-purple-500" />,
     },
-  ];
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
   const quickActions = [
     {
       title: "My Profile",
       icon: <FiUser className="text-blue-500" />,
-      link: "/profile",
+      link: "profile",
     },
     {
       title: "My Orders",
       icon: <FiPackage className="text-green-500" />,
-      link: "/orders",
+      link: "orders",
     },
     {
       title: "My Wishlist",
       icon: <FiHeart className="text-red-500" />,
-      link: "/wishlist",
+      link: "wishlist",
     },
     {
-      title: "Addresses",
-      icon: <FiMapPin className="text-yellow-500" />,
-      link: "/addresses",
-    },
-    {
-      title: "Payment Methods",
-      icon: <FiDollarSign className="text-purple-500" />,
-      link: "/payments",
-    },
-    {
-      title: "Account Settings",
+      title: "Support",
       icon: <FiSettings className="text-gray-500" />,
-      link: "/settings",
+      link: "support",
     },
   ];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Delivered":
+      case "delivered":
         return "bg-green-100 text-green-800";
-      case "Shipped":
+      case "shipped":
         return "bg-blue-100 text-blue-800";
-      case "Processing":
+      case "processing":
+      case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const [profileRes, ordersRes] = await Promise.all([
+          axios.get(`${API_URL}/profile`, config),
+          axios.get(`${API_URL}/user/my-orders`, config),
+        ]);
+
+        const profile = profileRes.data.user;
+        const orders = ordersRes.data.data;
+
+        // Process Orders logic
+        const totalOrders = orders.length;
+        const pendingOrders = orders.filter((o) =>
+          ["pending", "processing"].includes(o.orderStatus)
+        ).length;
+        const deliveredOrders = orders.filter(
+          (o) => o.orderStatus === "delivered"
+        ).length;
+        const totalSpent = orders
+            .filter(o => o.orderStatus !== 'cancelled')
+            .reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+
+        setUserData({
+          name: profile.name,
+          email: profile.email,
+          joinDate: new Date(profile.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          orders: totalOrders,
+          totalSpent: `$${totalSpent.toFixed(2)}`,
+        });
+
+        // Update Stats
+        setStats([
+          {
+            title: "Total Orders",
+            value: totalOrders,
+            change: "0", // Logic for change can be added if historical data exists
+            changeType: "neutral",
+            icon: <FiPackage className="text-blue-500" />,
+          },
+          {
+            title: "Pending Orders",
+            value: pendingOrders,
+            change: "0",
+            changeType: "neutral",
+            icon: <FiTruck className="text-yellow-500" />,
+          },
+          {
+            title: "Delivered Orders",
+            value: deliveredOrders,
+            change: "0",
+            changeType: "neutral",
+            icon: <FiCheckCircle className="text-green-500" />,
+          },
+          {
+            title: "Total Spent",
+            value: `$${totalSpent.toFixed(2)}`,
+            change: "0",
+            changeType: "neutral",
+            icon: <FiDollarSign className="text-purple-500" />,
+          },
+        ]);
+
+        // Recent Orders
+        setRecentOrders(
+          orders.slice(0, 5).map((order) => ({
+            id: order._id,
+            displayId: order.orderNumber || order._id.slice(-6).toUpperCase(),
+            date: new Date(order.createdAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            status: order.orderStatus,
+            total: `$${(order.totalAmount || 0).toFixed(2)}`,
+            items: order.items.length,
+          }))
+        );
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        setError("Failed to load dashboard data.");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [API_URL]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -159,18 +242,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <div
-                className={`mt-4 flex items-center text-sm ${
-                  stat.changeType === "up" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {stat.changeType === "up" ? (
-                  <FiArrowUp className="mr-1" />
-                ) : (
-                  <FiArrowDown className="mr-1" />
-                )}
-                <span>{stat.change} from last month</span>
-              </div>
+              {/* Change indicator removed for simplicity as backend doesn't support history comparison yet */}
             </div>
           ))}
         </div>
@@ -182,42 +254,48 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium text-gray-900">
                   Recent Orders
                 </h3>
-                <button className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                <Link to="orders" className="text-sm font-medium text-blue-600 hover:text-blue-500">
                   View all
-                </button>
+               </Link>
               </div>
               <div className="divide-y divide-gray-200">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {order.id}
-                        </p>
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((order) => (
+                    <div key={order.id} className="px-6 py-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            #{order.displayId}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Placed on {order.date}
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                              order.status
+                            )}`}
+                          >
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between">
                         <p className="text-sm text-gray-500">
-                          Placed on {order.date}
+                          {order.items} item{order.items !== 1 ? "s" : ""}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {order.total}
                         </p>
                       </div>
-                      <div className="flex items-center">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {order.status}
-                        </span>
-                      </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <p className="text-sm text-gray-500">
-                        {order.items} item{order.items !== 1 ? "s" : ""}
-                      </p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {order.total}
-                      </p>
-                    </div>
+                  ))
+                ) : (
+                  <div className="px-6 py-4 text-center text-gray-500">
+                    No recent orders found.
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
