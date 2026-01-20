@@ -69,7 +69,7 @@ export default function Form() {
       <div className="p-8 md:p-12 md:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-8">
           <div className="mb-8 text-center">
-            <p className="mb-1 text-2xl text-purple-500 font-bold">Login</p>
+            <p className="mb-1 text-2xl text-[#4A90E2] font-bold">Login</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -91,7 +91,7 @@ export default function Form() {
                 })}
                 type="text"
                 placeholder="Username or email address"
-                className="w-full h-12 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full h-12 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2]"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">
@@ -112,7 +112,7 @@ export default function Form() {
                 {...register("password", { required: "password is required" })}
                 type="password"
                 placeholder="Password"
-                className="w-full h-12 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full h-12 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2]"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">
@@ -123,7 +123,7 @@ export default function Form() {
 
             <button
               type="submit"
-              className="w-full h-12 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-md transition duration-200 cursor-pointer"
+              className="w-full h-12 bg-[#4A90E2] hover:bg-[#357ABD] text-white font-medium rounded-md transition duration-200 cursor-pointer"
             >
               Sign in
             </button>
@@ -133,7 +133,7 @@ export default function Form() {
             <span className="text-gray-500">No Account?</span>{" "}
             <Link
               to="/register/customer"
-              className="text-purple-500 font-medium"
+              className="text-[#4A90E2] font-medium"
             >
               Register
             </Link>

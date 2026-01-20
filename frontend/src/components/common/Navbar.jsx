@@ -46,8 +46,10 @@ const Header = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
   const clickTimeoutRef = useRef(null);
   const userDropdownRef = useRef(null);
+  const categoriesDropdownRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -58,7 +60,7 @@ const Header = () => {
 
   const navLinks = [
     { name: "Home", path: "/", icon: FiHome },
-    { name: "Products", path: "/product", icon: FiPackage }, 
+    { name: "Products", path: "/product", icon: FiPackage },
     { name: "About Us", path: "/about", icon: FiInfo },
     { name: "Contact Us", path: "/contact-us", icon: FiMail },
   ];
@@ -94,6 +96,15 @@ const Header = () => {
       ) {
         setShowUserDropdown(false);
       }
+      
+      if (
+        categoriesDropdownRef.current &&
+        !categoriesDropdownRef.current.contains(event.target) &&
+        !event.target.closest(".shop-categories-trigger")
+      ) {
+        setDropdownVisible(false);
+        setHoveredCategory(null);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -108,24 +119,14 @@ const Header = () => {
         setIsMenuOpen(false);
         setClickedCategory(null);
         setShowUserDropdown(false);
-      }
-    };
-
-    const handleClickOutside = (e) => {
-      if (isMenuOpen && e.target.closest(".mobile-menu-container") === null) {
-        setIsMenuOpen(false);
-      }
-      if (!e.target.closest(".category-item")) {
-        setClickedCategory(null);
+        setDropdownVisible(false);
       }
     };
 
     document.addEventListener("keydown", handleEscape);
-    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("mousedown", handleClickOutside);
       if (clickTimeoutRef.current) {
         clearTimeout(clickTimeoutRef.current);
       }
@@ -164,7 +165,7 @@ const Header = () => {
 
         if (response.data.success) {
           setCategories(response.data.categories || []);
-          setError(null); 
+          setError(null);
         } else {
           setError("Failed to load categories");
         }
@@ -202,13 +203,43 @@ const Header = () => {
       }
     };
 
-    if (hoveredCategory || clickedCategory) {
-      fetchSubcategories(hoveredCategory || clickedCategory);
+    if (hoveredCategory && hoveredCategory !== "all-categories") {
+      fetchSubcategories(hoveredCategory);
     }
-  }, [hoveredCategory, clickedCategory, subcategories]);
+  }, [hoveredCategory, subcategories]);
 
   const getCategoryName = (category) => {
     return category.name || category.title || category;
+  };
+
+  const handleShopCategoriesHover = () => {
+    setDropdownVisible(true);
+  };
+
+  const handleShopCategoriesLeave = (e) => {
+    if (
+      categoriesDropdownRef.current &&
+      categoriesDropdownRef.current.contains(e.relatedTarget)
+    ) {
+      return; 
+    }
+    setTimeout(() => {
+      if (!hoveredCategory) {
+        setDropdownVisible(false);
+      }
+    }, 100);
+  };
+
+  const handleDropdownLeave = (e) => {
+    if (
+      e.relatedTarget &&
+      e.relatedTarget.closest(".shop-categories-trigger")
+    ) {
+      return; 
+    }
+    
+    setDropdownVisible(false);
+    setHoveredCategory(null);
   };
 
   const handleCategoryHover = (categoryId) => {
@@ -220,23 +251,23 @@ const Header = () => {
   };
 
   const handleCategoryClick = (categoryId, category) => {
+    if (clickedCategory === categoryId) {
+      setClickedCategory(null);
+      return;
+    }
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
       navigate(`/category/${category._id}`);
       setClickedCategory(null);
-    } else {
-      clickTimeoutRef.current = setTimeout(() => {
-        setClickedCategory(clickedCategory === categoryId ? null : categoryId);
-        clickTimeoutRef.current = null;
-      }, 300);
+      setIsMenuOpen(false);
+      setDropdownVisible(false);
+      return;
     }
-  };
-
-  const handleSubcategoryClick = () => {
-    setClickedCategory(null);
-    setHoveredCategory(null);
-    setIsMenuOpen(false);
+    clickTimeoutRef.current = setTimeout(() => {
+      setClickedCategory(categoryId);
+      clickTimeoutRef.current = null;
+    }, 300); 
   };
 
   const handleSearchClick = () => {
@@ -260,7 +291,7 @@ const Header = () => {
   };
 
   const handleOrdersClick = () => {
-    navigate("/orders");
+    navigate("/user-dashboard/orders");
     setShowUserDropdown(false);
   };
 
@@ -289,26 +320,30 @@ const Header = () => {
         <div className="flex items-center space-x-6 border-l border-gray-200 pl-6">
           {loading ? (
             <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
-          ) : error || categories.length === 0 ? (
+          ) : (
             <div
-              className="relative category-item"
-              onMouseEnter={() => setHoveredCategory("all-categories")}
-              onMouseLeave={handleCategoryLeave}
+              className="relative shop-categories-trigger"
+              onMouseEnter={handleShopCategoriesHover}
+              onMouseLeave={handleShopCategoriesLeave}
             >
-              <div className="flex items-center text-gray-700 font-medium hover:text-[#4A90E2] transition cursor-pointer select-none">
+              <button className="flex items-center text-gray-700 font-medium hover:text-[#4A90E2] transition cursor-pointer select-none">
                 <FiGrid className="w-4 h-4 mr-1" />
                 Shop Categories
                 <FiChevronDown
                   className={`ml-1 w-4 h-4 transition-transform ${
-                    hoveredCategory === "all-categories" ? "rotate-180" : ""
+                    dropdownVisible ? "rotate-180" : ""
                   }`}
                 />
-              </div>
+              </button>
 
-              {hoveredCategory === "all-categories" && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-2xl border border-gray-200 rounded-lg z-50">
+              {dropdownVisible && (
+                <div
+                  ref={categoriesDropdownRef}
+                  className="absolute top-full left-0 mt-2 w-64 bg-white shadow-2xl border border-gray-200 rounded-lg z-50"
+                  onMouseLeave={handleDropdownLeave}
+                >
                   <div className="p-4 max-h-80 overflow-y-auto">
-                  <h3 className="font-semibold text-gray-800 mb-3">
+                    <h3 className="font-semibold text-gray-800 mb-3">
                       All Categories
                     </h3>
                     {error || categories.length === 0 ? (
@@ -322,93 +357,31 @@ const Header = () => {
                         {categories.map((category) => (
                           <div
                             key={category._id}
-                            className="relative category-subitem"
+                            className="relative group"
                             onMouseEnter={() => handleCategoryHover(category._id)}
+                            onMouseLeave={handleCategoryLeave}
                           >
-                            <Link
-                              to={`/category/${category._id}`}
-                              className="flex items-center justify-between py-2 px-3 text-sm text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors"
-                              onClick={() => setHoveredCategory(null)}
+                            <div
+                              onClick={() => handleCategoryClick(category._id, category)}
+                              className="flex items-center justify-between py-2 px-3 text-sm text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors cursor-pointer"
                             >
                               <span>{getCategoryName(category)}</span>
                               {subcategories[category._id]?.length > 0 && (
-                                <FiChevronDown className="w-3 h-3" />
+                                <FiChevronDown 
+                                  className={`w-3 h-3 transition-transform ${
+                                    hoveredCategory === category._id ? "rotate-180" : ""
+                                  }`}
+                                />
                               )}
-                            </Link>
+                            </div>
+                            
                             {hoveredCategory === category._id &&
-                              subcategories[category._id]?.length > 0 && (
-                                <div className="absolute left-full top-0 ml-1 w-56 bg-white shadow-2xl border border-gray-200 rounded-lg z-50">
-                                  <div className="p-3">
-                                    <h4 className="font-semibold text-sm text-gray-700 mb-2">
-                                      {getCategoryName(category)}
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {subcategories[category._id].map(
-                                        (subcategory) => (
-                                          <Link
-                                            key={subcategory._id}
-                                            to={`/category/${category._id}/subcategory/${subcategory._id}`}
-                                            className="block py-1.5 px-3 text-xs text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded transition-colors"
-                                            onClick={() => setHoveredCategory(null)}
-                                          >
-                                            {getCategoryName(subcategory)}
-                                          </Link>
-                                        )
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div
-              className="relative category-item"
-              onMouseEnter={() => setHoveredCategory("all-categories")}
-              onMouseLeave={handleCategoryLeave}
-            >
-              <div className="flex items-center text-gray-700 font-medium hover:text-[#4A90E2] transition-pointer select-none">
-                <FiGrid className="w-4 h-4 mr-1" />
-                Shop Categories
-                <FiChevronDown
-                  className={`ml-1 w-4 h-4 transition-transform ${
-                    hoveredCategory === "all-categories" ? "rotate-180" : ""
-                  }`}
-                />
-              </div>
-
-              {hoveredCategory === "all-categories" && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-2xl border border-gray-200 rounded-lg z-50">
-                  <div className="p-4 max-h-80 overflow-y-auto">
-                    <h3 className="font-semibold text-gray-800 mb-3">
-                      All Categories
-                    </h3>
-                    <div className="space-y-2">
-                      {categories.map((category) => (
-                        <div
-                          key={category._id}
-                          className="relative category-subitem"
-                          onMouseEnter={() => handleCategoryHover(category._id)}
-                        >
-                          <Link
-                            to={`/category/${category._id}`}
-                            className="flex items-center justify-between py-2 px-3 text-sm text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors"
-                            onClick={() => setHoveredCategory(null)}
-                          >
-                            <span>{getCategoryName(category)}</span>
-                            {subcategories[category._id]?.length > 0 && (
-                              <FiChevronDown className="w-3 h-3" />
-                            )}
-                          </Link>
-                          {hoveredCategory === category._id &&
-                            subcategories[category._id]?.length > 0 && (
-                              <div className="absolute left-full top-0 ml-1 w-56 bg-white shadow-2xl border border-gray-200 rounded-lg z-50">
+                             subcategories[category._id]?.length > 0 && (
+                              <div 
+                                className="absolute left-full top-0 ml-1 w-56 bg-white shadow-2xl border border-gray-200 rounded-lg z-50"
+                                onMouseEnter={() => handleCategoryHover(category._id)}
+                                onMouseLeave={handleCategoryLeave}
+                              >
                                 <div className="p-3">
                                   <h4 className="font-semibold text-sm text-gray-700 mb-2">
                                     {getCategoryName(category)}
@@ -420,7 +393,10 @@ const Header = () => {
                                           key={subcategory._id}
                                           to={`/category/${category._id}/subcategory/${subcategory._id}`}
                                           className="block py-1.5 px-3 text-xs text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded transition-colors"
-                                          onClick={() => setHoveredCategory(null)}
+                                          onClick={() => {
+                                            setHoveredCategory(null);
+                                            setDropdownVisible(false);
+                                          }}
                                         >
                                           {getCategoryName(subcategory)}
                                         </Link>
@@ -430,9 +406,10 @@ const Header = () => {
                                 </div>
                               </div>
                             )}
-                        </div>
-                      ))}
-                    </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -567,7 +544,7 @@ const Header = () => {
                       </div>
 
                       <Link
-                        to="/profile"
+                        to="/user-dashboard/profile"
                         onClick={() => setShowUserDropdown(false)}
                         className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mt-1"
                       >
@@ -771,30 +748,41 @@ const Header = () => {
                             key={category._id || index}
                             className="border-b border-gray-100 last:border-b-0"
                           >
-                            <Link
-                              to={`/category/${category._id}`}
-                              onClick={() => setIsMenuOpen(false)}
-                              className="block py-3 px-3 text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors font-medium"
+                            <div
+                              onClick={() => handleCategoryClick(category._id, category)}
+                              className="flex items-center justify-between py-3 px-3 text-gray-600 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors font-medium cursor-pointer"
                             >
-                              {getCategoryName(category)}
-                            </Link>
-                            {subcategories[category._id] &&
-                              subcategories[category._id].length > 0 && (
-                                <div className="ml-4 mt-1 space-y-1">
-                                  {subcategories[category._id].map(
-                                    (subcategory) => (
-                                      <Link
-                                        key={subcategory._id}
-                                        to={`/category/${category._id}/subcategory/${subcategory._id}`}
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="block py-2 px-3 text-sm text-gray-500 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors"
-                                      >
-                                        {getCategoryName(subcategory)}
-                                      </Link>
-                                    )
-                                  )}
-                                </div>
+                              <span>{getCategoryName(category)}</span>
+                              {subcategories[category._id]?.length > 0 && (
+                                <FiChevronDown 
+                                  className={`w-4 h-4 transition-transform ${
+                                    clickedCategory === category._id ? "rotate-180" : ""
+                                  }`}
+                                />
                               )}
+                            </div>
+                            
+                            {clickedCategory === category._id && 
+                             subcategories[category._id] &&
+                             subcategories[category._id].length > 0 && (
+                              <div className="ml-4 mt-1 space-y-1">
+                                {subcategories[category._id].map(
+                                  (subcategory) => (
+                                    <Link
+                                      key={subcategory._id}
+                                      to={`/category/${category._id}/subcategory/${subcategory._id}`}
+                                      onClick={() => {
+                                        setClickedCategory(null);
+                                        setIsMenuOpen(false);
+                                      }}
+                                      className="block py-2 px-3 text-sm text-gray-500 hover:text-[#4A90E2] hover:bg-[#E3F2FD] rounded-lg transition-colors"
+                                    >
+                                      {getCategoryName(subcategory)}
+                                    </Link>
+                                  )
+                                )}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

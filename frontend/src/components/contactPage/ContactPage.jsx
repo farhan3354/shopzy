@@ -149,7 +149,7 @@ export default function ContactPage() {
                 <div className="space-y-6">
                   {contactInfo.map((item, index) => (
                     <div key={index} className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-[#f6e9ee] rounded-lg flex items-center justify-center text-[#8F2B53]">
+                      <div className="flex-shrink-0 w-12 h-12 bg-[#E3F2FD] rounded-lg flex items-center justify-center text-[#4A90E2]">
                         {item.icon}
                       </div>
                       <div>
@@ -175,7 +175,7 @@ export default function ContactPage() {
                       (social) => (
                         <button
                           key={social}
-                          className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 hover:bg-[#f6e9ee] hover:text-[#8F2B53] transition-colors"
+                          className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 hover:bg-[#E3F2FD] hover:text-[#4A90E2] transition-colors"
                         >
                           {social.charAt(0)}
                         </button>
@@ -183,15 +183,15 @@ export default function ContactPage() {
                     )}
                   </div>
                 </div>
-                <div className="mt-8 p-4 bg-[#f6e9ee] rounded-lg">
-                  <h3 className="font-semibold text-[#8F2B53] mb-2">
+                <div className="mt-8 p-4 bg-[#E3F2FD] rounded-lg">
+                  <h3 className="font-semibold text-[#4A90E2] mb-2">
                     Need Immediate Help?
                   </h3>
-                  <p className="text-[#8F2B53] text-sm mb-4">
+                  <p className="text-[#357ABD] text-sm mb-4">
                     Our live chat support is available 24/7 for urgent
                     inquiries.
                   </p>
-                  <button className="w-full bg-gradient-to-r from-[#BE386E] via-[#8F2A53] to-[#68012A] text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 transition-colors">
+                  <button className="w-full bg-gradient-to-r from-[#4A90E2] via-[#357ABD] to-[#2C3E50] text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 transition-colors">
                     Start Live Chat
                   </button>
                 </div>

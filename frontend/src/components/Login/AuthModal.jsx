@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { login } from "../../redux/authSlice/authSlice";
 import { FiX } from "react-icons/fi";
 import api from "../../../utils/api";
+import logo from "../../assets/Marotix-Logo.png";
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const {
@@ -105,18 +106,13 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
           <FiX size={24} />
         </button>
 
-        <div className="bg-[#f4ebf5] p-6 rounded-t-lg">
+        <div className="bg-[#E3F2FD] p-6 rounded-t-lg">
           <div className="flex items-center justify-center space-x-8">
             <img
-              src="https://d1nl4izteao6lk.cloudfront.net/uploads/1728464450402_splash-logo-web 2 (2).png"
-              alt="Aramya Logo"
+              src={logo}
+              alt="Logo"
               className="h-12"
             />
-            {/* <img
-              src="https://d1nl4izteao6lk.cloudfront.net/images/powered_by_kp_4px.svg"
-              alt="Powered by"
-              className="h-6"
-            /> */}
           </div>
         </div>
 
@@ -149,7 +145,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 })}
                 type="email"
                 placeholder="Enter your email address"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">
@@ -182,7 +178,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
             <div className="text-right">
               <button
                 type="button"
-                className="text-sm text-[#68002a] hover:text-[#5a0024] font-medium transition-colors duration-200"
+                className="text-sm text-[#4A90E2] hover:text-[#357ABD] font-medium transition-colors duration-200"
               >
                 Forgot Password?
               </button>
@@ -190,7 +186,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
 
             <button
               type="submit"
-              className="w-full bg-[#68002a] text-white py-3 rounded-lg font-medium hover:bg-[#5a0024] transition-colors duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-[#4A90E2] text-white py-3 rounded-lg font-medium hover:bg-[#357ABD] transition-colors duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Sign In
             </button>
@@ -242,11 +238,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
           <footer className="mt-8 pt-6 border-t border-gray-200">
             <div className="text-xs text-gray-500 text-center mb-4">
               By continuing, you agree to Aramya's{" "}
-              <button className="text-[#68002a] hover:underline transition-colors duration-200">
+              <button className="text-[#4A90E2] hover:underline transition-colors duration-200">
                 Terms of Service
               </button>{" "}
               and{" "}
-              <button className="text-[#68002a] hover:underline transition-colors duration-200">
+              <button className="text-[#4A90E2] hover:underline transition-colors duration-200">
                 Privacy Policy
               </button>
             </div>
@@ -262,7 +258,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                       onSwitchToRegister();
                     }
                   }}
-                  className="text-[#68002a] hover:text-[#5a0024] font-semibold transition-colors duration-200"
+                  className="text-[#4A90E2] hover:text-[#357ABD] font-semibold transition-colors duration-200"
                 >
                   Create Account
                 </button>

@@ -38,9 +38,8 @@ export default function FeatureProduct() {
   const dispatch = useDispatch();
 
   const isHomePage = location.pathname === "/";
-  const isProductPage = location.pathname === "/products";
+  const isProductPage = location.pathname === "/products" || location.pathname === "/product/:id";
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {

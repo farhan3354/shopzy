@@ -1,4 +1,4 @@
-import Navbar from "./NavBar";
+import Navbar from "./../Navbar";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import CustomerSidebar from "./CustomerSidebar";

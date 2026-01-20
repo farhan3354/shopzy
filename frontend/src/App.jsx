@@ -76,6 +76,7 @@ function App() {
               element={<SubcategoryProducts />}
             />
             <Route path="product" element={<FeatureProduct />} />
+            <Route path="products" element={<FeatureProduct />} />
             <Route path="contact-us" element={<ContactUS />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-success/:orderId" element={<OrderSuccess />} />

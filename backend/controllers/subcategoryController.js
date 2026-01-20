@@ -43,7 +43,7 @@ export const getSubcategories = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Data is not found in the database" });
     }
-    return res.status(200).json({ success: false, subcateg });
+    return res.status(200).json({ success: true, subcateg });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -65,25 +65,20 @@ export const getSubcategoryById = async (req, res) => {
 export const getSubcategoriesByCategoryId = async (req, res) => {
   try {
     const { categoryId } = req.params;
-
-    console.log("🔍 Fetching subcategories for category ID:", categoryId);
-
     const subcategories = await Subcategory.find({
       parentCategory: categoryId,
     })
       .populate("parentCategory", "name slug")
       .sort({ name: 1 });
 
-    console.log(`✅ Found ${subcategories.length} subcategories`);
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Subcategories fetched successfully",
       subcateg: subcategories,
     });
   } catch (error) {
     console.error("❌ Error fetching subcategories:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message,
@@ -108,9 +103,9 @@ export const updateSubcategory = async (req, res) => {
     );
     if (!subcategory)
       return res.status(404).json({ message: "Subcategory not found" });
-    res.json(subcategory);
+    return res.json(subcategory);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 };
 

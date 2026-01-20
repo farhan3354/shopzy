@@ -259,22 +259,16 @@ const ShareAndEarn = () => {
                   Get exclusive app-only deals, faster checkout, and
                   personalized recommendations.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
+                {/* <div className="flex flex-col sm:flex-row gap-4">
                   <button className="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors">
                     <span className="text-2xl">📱</span>
-                    <div className="text-left">
-                      <div className="text-xs">GET IT ON</div>
-                      <div className="font-bold">Google Play</div>
-                    </div>
+                   
                   </button>
                   <button className="flex items-center justify-center gap-3 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors">
                     <span className="text-2xl">📱</span>
-                    <div className="text-left">
-                      <div className="text-xs">Download on the</div>
-                      <div className="font-bold">App Store</div>
-                    </div>
+                   
                   </button>
-                </div>
+                </div> */}
               </div>
               <div className="relative">
                 <div className="w-48 h-48 md:w-56 md:h-56 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center">

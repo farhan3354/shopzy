@@ -25,7 +25,7 @@ export default function ContactForm({
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8F2B53] focus:border-[#8F2B53] transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4A90E2] focus:border-[#4A90E2] transition-colors"
               placeholder="Enter your full name"
             />
           </div>
@@ -44,7 +44,7 @@ export default function ContactForm({
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8F2B53] focus:border-[#8F2B53] transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4A90E2] focus:border-[#4A90E2] transition-colors"
               placeholder="Enter your email"
             />
           </div>
@@ -96,7 +96,7 @@ export default function ContactForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-gradient-to-r from-[#BE386E] via-[#8F2A53] to-[#68012A] text-white py-4 px-6 rounded-lg font-semibold hover:opacity-90 focus:ring-2 focus:ring-[#8F2B53] focus:ring-offset-2 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full bg-gradient-to-r from-[#4A90E2] via-[#357ABD] to-[#2C3E50] text-white py-4 px-6 rounded-lg font-semibold hover:opacity-90 focus:ring-2 focus:ring-[#4A90E2] focus:ring-offset-2 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isSubmitting ? (
             <>

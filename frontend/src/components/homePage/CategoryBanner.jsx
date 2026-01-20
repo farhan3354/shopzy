@@ -12,6 +12,9 @@ import {
   FiClock,
 } from "react-icons/fi";
 import { HiFire } from "react-icons/hi";
+import banner1 from "../../assets/banner1.avif";
+import banner2 from "../../assets/banner2.avif";
+import banner3 from "../../assets/banner3.avif";
 
 const CategoryBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -24,8 +27,7 @@ const CategoryBanner = () => {
       subtitle: "Up to 70% OFF",
       description:
         "Light up your home with amazing deals on electronics, fashion, and home decor",
-      image:
-        "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
+      image: banner1,
       buttonText: "Shop Diwali Collection",
       color: "from-[#4A90E2] via-[#357ABD] to-[#2C3E50]",
       badge: "🔥 Limited Time",
@@ -36,8 +38,7 @@ const CategoryBanner = () => {
       subtitle: "Latest Flagship Phones",
       description:
         "Get the newest smartphones with amazing discounts & exchange offers",
-      image:
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
+      image: banner2,
       buttonText: "Explore Mobiles",
       color: "from-[#2B5383] via-[#1E3A5F] to-[#0F1F38]",
       badge: "📱 New Launch",
@@ -48,8 +49,7 @@ const CategoryBanner = () => {
       subtitle: "Premium Home Decor",
       description:
         "Transform your living space with our exclusive home furniture & decor collection",
-      image:
-        "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
+      image: banner3,
       buttonText: "Shop Home Decor",
       color: "from-[#38A169] via-[#2F855A] to-[#276749]",
       badge: "🏡 Trending",

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FiX, FiMail, FiHome, FiCheckCircle } from "react-icons/fi";
 import api from "../../../utils/api";
+import logo from "../../assets/Marotix-Logo.png";
 
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   const {
@@ -148,11 +149,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
           <FiX size={24} />
         </button>
 
-        <div className="bg-[#f4ebf5] p-6 rounded-t-lg">
+        <div className="bg-[#E3F2FD] p-6 rounded-t-lg">
           <div className="flex items-center justify-center space-x-8">
             <img
-              src="https://d1nl4izteao6lk.cloudfront.net/uploads/1728464450402_splash-logo-web 2 (2).png"
-              alt="Aramya Logo"
+              src={logo}
+              alt="Logo"
               className="h-12"
             />
           </div>
@@ -168,9 +169,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             </p>
           </div>
 
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-[#4A90E2]/20">
             <div className="flex items-start gap-2">
-              <FiMail className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <FiMail className="w-4 h-4 text-[#4A90E2] mt-0.5 flex-shrink-0" />
               <p className="text-xs text-blue-700">
                 After registration, check your email for a verification link to activate your account.
               </p>
@@ -186,7 +187,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 {...register("userRole", { required: "Please select a role" })}
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               >
                 <option value="" disabled>
                   Select Role
@@ -215,7 +216,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 })}
                 type="text"
                 placeholder="Enter your full name"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               />
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">
@@ -238,7 +239,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 })}
                 type="email"
                 placeholder="Enter your email"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">
@@ -261,7 +262,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 })}
                 type="tel"
                 placeholder="Enter your phone number"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               />
               {errors.phone && (
                 <p className="text-red-500 text-xs mt-1">
@@ -284,7 +285,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                 })}
                 type="password"
                 placeholder="Create a strong password"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#68002a] focus:border-transparent transition-all duration-200"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all duration-200"
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">
@@ -296,7 +297,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#68002a] text-white py-3 rounded-lg font-medium hover:bg-[#5a0024] disabled:bg-[#8c8c8c] transition-colors duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none flex items-center justify-center gap-2"
+              className="w-full bg-[#4A90E2] text-white py-3 rounded-lg font-medium hover:bg-[#357ABD] disabled:bg-[#8c8c8c] transition-colors duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -321,11 +322,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
           <footer className="mt-8 pt-6 border-t border-gray-200">
             <div className="text-xs text-gray-500 text-center mb-4">
               By creating an account, you agree to Aramya's{" "}
-              <button className="text-[#68002a] hover:underline transition-colors duration-200">
+              <button className="text-[#4A90E2] hover:underline transition-colors duration-200">
                 Terms of Service
               </button>{" "}
               and{" "}
-              <button className="text-[#68002a] hover:underline transition-colors duration-200">
+              <button className="text-[#4A90E2] hover:underline transition-colors duration-200">
                 Privacy Policy
               </button>
             </div>
@@ -341,7 +342,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
                       onSwitchToLogin();
                     }
                   }}
-                  className="text-[#68002a] hover:text-[#5a0024] font-semibold transition-colors duration-200"
+                  className="text-[#4A90E2] hover:text-[#357ABD] font-semibold transition-colors duration-200"
                 >
                   Sign In
                 </button>
