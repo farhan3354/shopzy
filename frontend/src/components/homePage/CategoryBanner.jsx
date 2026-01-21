@@ -23,18 +23,18 @@ const CategoryBanner = () => {
   const heroSlides = [
     {
       id: 1,
-      title: "Diwali Dhamaka Sale",
+      title: "Eid Sale",
       subtitle: "Up to 70% OFF",
       description:
         "Light up your home with amazing deals on electronics, fashion, and home decor",
       image: banner1,
-      buttonText: "Shop Diwali Collection",
+      buttonText: "Shop Eid Collection",
       color: "from-[#4A90E2] via-[#357ABD] to-[#2C3E50]",
       badge: "🔥 Limited Time",
     },
     {
       id: 2,
-      title: "Smartphone Mania",
+      title: "New Year Sale",
       subtitle: "Latest Flagship Phones",
       description:
         "Get the newest smartphones with amazing discounts & exchange offers",
