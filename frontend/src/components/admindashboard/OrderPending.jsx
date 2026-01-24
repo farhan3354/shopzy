@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import api from "../../../utils/api";
+import { FiCheckCircle, FiXCircle, FiClock, FiAlertTriangle, FiLoader, FiShoppingBag, FiArrowRight } from "react-icons/fi";
 
 const OrderPending = () => {
   const { id } = useParams();
@@ -128,23 +129,41 @@ const OrderPending = () => {
     }
   };
 
+  // Show loading state
+  if (loading && !order && !error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center">
+          <FiLoader className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Processing Your Order</h2>
+          <p className="text-gray-600">Please wait while we verify your payment and confirm your items.</p>
+          <div className="mt-8 flex justify-center gap-2">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Show redirecting state
   if (redirecting) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center bg-white shadow-md rounded-xl p-8 w-full max-w-md">
-          <div className="text-green-500 text-5xl mb-4">
-            <i className="fas fa-check-circle"></i>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="text-center bg-white shadow-xl rounded-2xl p-10 w-full max-w-md border border-green-100">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FiCheckCircle className="text-green-500 text-5xl" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2">Order Confirmed!</h2>
-          <p className="text-gray-600 mb-4">
-            Your order has been successfully placed.
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h2>
+          <p className="text-gray-600 mb-8">
+            Your order has been successfully placed and is being prepared.
           </p>
-          <div className="animate-pulse mb-4">
-            <p className="text-blue-600">Redirecting to orders page...</p>
-          </div>
-          <div className="flex justify-center">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-center gap-2 text-blue-600 font-medium">
+              <FiLoader className="animate-spin" />
+              <span>Redirecting to your orders...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -153,22 +172,22 @@ const OrderPending = () => {
 
   if (error && !order) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center bg-white shadow-md rounded-xl p-8 w-full max-w-md">
-          <div className="text-red-500 text-5xl mb-4">
-            <i className="fas fa-exclamation-triangle"></i>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="text-center bg-white shadow-xl rounded-2xl p-10 w-full max-w-md border border-red-100">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FiAlertTriangle className="text-red-500 text-5xl" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2">Something went wrong</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <div className="flex justify-center gap-3">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Something went wrong</h2>
+          <p className="text-gray-600 mb-8">{error}</p>
+          <div className="flex flex-col gap-3">
             <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
               onClick={() => navigate("/orders")}
             >
               View My Orders
             </button>
             <button
-              className="border border-gray-400 px-4 py-2 rounded-md hover:bg-gray-100"
+              className="w-full border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
               onClick={() => navigate("/")}
             >
               Continue Shopping
@@ -187,16 +206,13 @@ const OrderPending = () => {
             className="mx-auto w-16 h-16 flex items-center justify-center rounded-full"
             style={{ backgroundColor: `${getStatusColor()}20` }}
           >
-            <i
-              className={`fas ${
-                order?.paymentStatus === "completed"
-                  ? "fa-check-circle"
-                  : order?.paymentStatus === "failed"
-                  ? "fa-times-circle"
-                  : "fa-clock"
-              } text-3xl`}
-              style={{ color: getStatusColor() }}
-            ></i>
+            {order?.paymentStatus === "completed" ? (
+              <FiCheckCircle className="text-4xl" style={{ color: getStatusColor() }} />
+            ) : order?.paymentStatus === "failed" ? (
+              <FiXCircle className="text-4xl" style={{ color: getStatusColor() }} />
+            ) : (
+              <FiClock className="text-4xl" style={{ color: getStatusColor() }} />
+            )}
           </div>
           <h1 className="text-2xl font-bold mt-4">{getStatusMessage()}</h1>
           <p className="text-gray-600 mt-2">{getSubtitle()}</p>
@@ -243,42 +259,42 @@ const OrderPending = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-3 mt-4">
           {order?.paymentStatus === "failed" && (
             <button
-              className="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700"
+              className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center shadow-lg shadow-red-200"
               onClick={() => navigate("/cart")}
             >
-              <i className="fas fa-redo mr-2"></i> Try Again
+              <FiLoader className="mr-2" /> Try Again
             </button>
           )}
 
           {order?.paymentStatus === "completed" && (
             <button
-              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 text-center"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center shadow-lg shadow-blue-200"
               onClick={() => navigate("/orders")}
             >
-              <i className="fas fa-eye mr-2"></i> View Order Details
+              <FiShoppingBag className="mr-2" /> View Order Details
             </button>
           )}
 
           {order?.paymentStatus !== "completed" && (
             <Link
               to="/orders"
-              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 text-center"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center shadow-lg shadow-blue-200"
             >
-              <i className="fas fa-eye mr-2"></i> View Order Details
+              <FiShoppingBag className="mr-2" /> View Order Details
             </Link>
           )}
 
           <button
-            className="border border-gray-400 px-5 py-2 rounded-lg hover:bg-gray-100"
+            className="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center"
             onClick={() => navigate("/")}
           >
-            <i className="fas fa-shopping-bag mr-2"></i> Continue Shopping
+            <FiArrowRight className="mr-2" rotate={180} /> Continue Shopping
           </button>
         </div>
 
         {order?.paymentStatus === "pending" && (
-          <p className="text-center text-gray-500 mt-6 text-sm">
-            <i className="fas fa-envelope mr-1"></i>
+          <p className="text-center text-gray-500 mt-6 text-sm flex items-center justify-center gap-2">
+            <FiMail />
             You will receive an email confirmation once your order is processed.
           </p>
         )}

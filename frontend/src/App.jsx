@@ -62,7 +62,7 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="shop" element={<Shop />} />
             <Route path="about" element={<About />} />
-            <Route path="order-pending/:id" element={<OrderPending />} />
+            {/* <Route path="order-pending/:id" element={<OrderPending />} /> */}
             <Route path="orders" element={<UserOrders />} />
             <Route path="/verify-account/:token" element={<VerifyAccount />} />
             <Route
@@ -79,7 +79,7 @@ function App() {
             <Route path="products" element={<FeatureProduct />} />
             <Route path="contact-us" element={<ContactUS />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+            {/* <Route path="/order-success/:orderId" element={<OrderSuccess />} /> */}
           </Route>
           <Route element={<ProtectRoute allowedRoles={["user", "customer"]} />}>
             <Route path="/user-dashboard" element={<UserLayout />}>
