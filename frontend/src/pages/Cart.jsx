@@ -230,7 +230,7 @@ const dispatch = useDispatch();
     cart?.items?.reduce((total, item) => total + calculateItemTotal(item), 0) ||
     0;
 
-  const shippingCharge = 100;
+  const shippingCharge = 0;
   const calculateTotal = () => calculateSubtotal() + shippingCharge;
 
   const getDiscountedPrice = (price) => {

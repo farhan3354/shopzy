@@ -9,7 +9,7 @@ export default function Profile() {
     joinDate: "",
     avatar: "https://via.placeholder.com/150", 
     orders: 0,
-    totalSpent: "$0.00",
+    totalSpent: "₹0.00",
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export default function Profile() {
         joinDate: new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
         avatar: user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
         orders: allOrders.length,
-        totalSpent: `$${totalSpent.toFixed(2)}`
+        totalSpent: `₹${totalSpent.toFixed(2)}`
       });
 
       setOrders(allOrders.slice(0, 5).map(order => ({
@@ -54,7 +54,7 @@ export default function Profile() {
         displayId: order.orderNumber || order._id.slice(-6).toUpperCase(),
         date: new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
         status: order.orderStatus,
-        total: `$${(order.totalAmount || 0).toFixed(2)}`
+        total: `₹${(order.totalAmount || 0).toFixed(2)}`
       })));
 
       setLoading(false);

@@ -155,7 +155,7 @@ export default function Orders() {
                       <p className="text-sm text-gray-500">
                         Placed on {new Date(order.date).toLocaleDateString()}
                       </p>
-                      <p className="text-sm font-bold mt-1">${(order.total || 0).toFixed(2)}</p>
+                      <p className="text-sm font-bold mt-1">₹{(order.total || 0).toFixed(2)}</p>
                       <span
                         className={`inline-flex items-center px-2 py-1 mt-2 rounded-full text-xs font-medium ${status.color}`}
                       >

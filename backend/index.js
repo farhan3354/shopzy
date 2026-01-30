@@ -39,28 +39,25 @@ const rawBodyMiddleware = (req, res, next) => {
   }
 };
 
-// ✅ Apply rawBodyMiddleware FIRST for webhooks
 app.use(rawBodyMiddleware);
 
-// ✅ Then apply other middleware
-app.use(cors());
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       const allowed = [
-//         "https://jobzy-seven.vercel.app",
-//         "http://localhost:5173",
-//       ];
-//       if (!origin || allowed.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     optionsSuccessStatus: 200,
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      const allowed = [
+        "https://jobzy-seven.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+      ];
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
