@@ -69,7 +69,7 @@ export default function UserManagementTable({
 
   const StatusBadge = ({ status }) => (
     <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${
+      className={`px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${
         status === "active"
           ? "bg-green-100 text-green-800"
           : status === "blocked"
@@ -82,7 +82,7 @@ export default function UserManagementTable({
   );
 
   const RoleBadge = ({ role }) => (
-    <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+    <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-800 text-xs font-bold uppercase tracking-wide border border-gray-200">
       {role}
     </span>
   );
@@ -91,13 +91,23 @@ export default function UserManagementTable({
     <div className="flex gap-2">
       <button
         onClick={() => changeUserStatus(user._id, "active")}
-        className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
+        disabled={user.userStatus === "active"}
+        className={`px-3 py-1 text-xs font-medium uppercase tracking-wider transition-colors ${
+          user.userStatus === "active"
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-gray-900 text-white hover:bg-gray-800"
+        }`}
       >
         Activate
       </button>
       <button
         onClick={() => changeUserStatus(user._id, "blocked")}
-        className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+        disabled={user.userStatus === "blocked"}
+        className={`px-3 py-1 text-xs font-medium uppercase tracking-wider transition-colors border ${
+          user.userStatus === "blocked"
+             ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+             : "bg-white text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+        }`}
       >
         Block
       </button>
@@ -108,7 +118,7 @@ export default function UserManagementTable({
     <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 uppercase tracking-tight">
             {title}
           </h2>
 
@@ -121,29 +131,29 @@ export default function UserManagementTable({
           </div>
         </div>
 
-        <div className="hidden lg:block overflow-x-auto bg-white shadow-md rounded-lg">
+        <div className="hidden lg:block overflow-x-auto bg-white border border-gray-200">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Email
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Phone
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Role
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Created
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
+                <th className="px-4 py-3 text-left font-medium text-gray-900 uppercase tracking-wider text-xs">
                   Action
                 </th>
               </tr>
@@ -151,17 +161,17 @@ export default function UserManagementTable({
             <tbody className="divide-y divide-gray-200">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">{user.name}</td>
-                    <td className="px-4 py-3">{user.email}</td>
-                    <td className="px-4 py-3">{user.phone}</td>
+                  <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-gray-900">{user.name}</td>
+                    <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                    <td className="px-4 py-3 text-gray-600">{user.phone}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={user.userStatus} />
                     </td>
                     <td className="px-4 py-3">
                       <RoleBadge role={user.userRole} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
@@ -173,7 +183,7 @@ export default function UserManagementTable({
                 <tr>
                   <td
                     colSpan="7"
-                    className="px-4 py-6 text-center text-gray-500"
+                    className="px-4 py-6 text-center text-gray-500 italic"
                   >
                     No {title.toLowerCase()} found
                   </td>
@@ -182,20 +192,20 @@ export default function UserManagementTable({
             </tbody>
           </table>
         </div>
-        <div className="hidden md:block lg:hidden overflow-x-auto bg-white shadow-md rounded-lg">
+        <div className="hidden md:block lg:hidden overflow-x-auto bg-white border border-gray-200">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
+                <th className="px-3 py-2 text-left font-medium text-gray-900 uppercase text-xs tracking-wider">
                   {userRole === "vendor" ? "Vendor" : "User"}
                 </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
+                <th className="px-3 py-2 text-left font-medium text-gray-900 uppercase text-xs tracking-wider">
                   Contact
                 </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
+                <th className="px-3 py-2 text-left font-medium text-gray-900 uppercase text-xs tracking-wider">
                   Status
                 </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
+                <th className="px-3 py-2 text-left font-medium text-gray-900 uppercase text-xs tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -206,15 +216,15 @@ export default function UserManagementTable({
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-3 py-2">
                       <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-medium text-gray-900">{user.name}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
                           <RoleBadge role={user.userRole} />
                         </div>
                       </div>
                     </td>
                     <td className="px-3 py-2">
                       <div>
-                        <div className="text-sm">{user.email}</div>
+                        <div className="text-sm text-gray-900">{user.email}</div>
                         <div className="text-xs text-gray-500">
                           {user.phone}
                         </div>
@@ -251,7 +261,7 @@ export default function UserManagementTable({
             filteredUsers.map((user) => (
               <div
                 key={user._id}
-                className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                className="bg-white border border-gray-200 p-4 shadow-sm"
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-start">
@@ -283,16 +293,16 @@ export default function UserManagementTable({
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2 pt-2 border-t border-gray-200">
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => changeUserStatus(user._id, "active")}
-                      className="flex-1 px-3 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
+                      className="flex-1 px-3 py-2 bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors uppercase tracking-wider"
                     >
                       Activate
                     </button>
                     <button
                       onClick={() => changeUserStatus(user._id, "blocked")}
-                      className="flex-1 px-3 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+                      className="flex-1 px-3 py-2 bg-white text-gray-900 border border-gray-900 text-sm font-medium hover:bg-gray-100 transition-colors uppercase tracking-wider"
                     >
                       Block
                     </button>
@@ -301,7 +311,7 @@ export default function UserManagementTable({
               </div>
             ))
           ) : (
-            <div className="bg-white shadow-md rounded-lg p-6 text-center">
+            <div className="bg-white border border-gray-200 p-6 text-center">
               <p className="text-gray-500">No {title.toLowerCase()} found</p>
             </div>
           )}

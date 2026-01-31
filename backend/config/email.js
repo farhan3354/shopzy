@@ -14,7 +14,7 @@ export const sendEmail = async (to, subject, html) => {
     });
 
     const mailOptions = {
-      from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+      from: `"Marotix Store" <${process.env.EMAIL_USER}>`,
       to: to,
       subject: subject,
       html: html,
