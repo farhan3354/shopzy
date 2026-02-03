@@ -12,9 +12,11 @@ import {
   FiPlus,
   FiCheck,
   FiTruck,
+  FiGlobe,
 } from "react-icons/fi";
 import api from "../../utils/api";
 import { fetchCartCount } from "../redux/authSlice/cartSlice";
+import checkoutBanner from "../assets/checkout_banner.png";
 
 export default function Checkout() {
   const [cart, setCart] = useState(null);
@@ -869,6 +871,7 @@ export default function Checkout() {
     }
   };
 
+ 
   const handlePayment = async () => {
     if (selectedPaymentMethod === "razorpay") {
       await handleRazorpayPayment();
@@ -879,10 +882,8 @@ export default function Checkout() {
     }
   };
 
-  // NEW: Handle back button to unlock cart
   const handleBackToAddress = () => {
     setStep(1);
-    // Optionally unlock cart when going back
     if (cartLocked) {
       unlockCartOnUnmount(checkoutSessionId);
       setCartLocked(false);
@@ -921,15 +922,24 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-gray-600 hover:text-indigo-600"
-          >
-            <FiArrowLeft className="mr-2" />
-            Back
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900 ml-4">Checkout</h1>
+        <div className="mb-8">
+          <div className="w-full h-48 md:h-64 rounded-xl overflow-hidden shadow-sm mb-6">
+            <img 
+              src={checkoutBanner} 
+              alt="Secure Checkout" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center text-gray-600 hover:text-indigo-600"
+            >
+              <FiArrowLeft className="mr-2" />
+              Back
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900 ml-4">Checkout</h1>
+          </div>
         </div>
 
         {priceValidation.hasChanges && (
@@ -1339,6 +1349,7 @@ export default function Checkout() {
                       )}
                     </div>
                   </div>
+                
                 </div>
                 <button
                   onClick={handlePayment}

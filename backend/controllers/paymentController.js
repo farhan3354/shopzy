@@ -784,8 +784,6 @@ const handlePaymentCaptured = async (webhookEvent) => {
   }
 };
 
-
-
 export const createCODOrder = async (req, res) => {
   let cartLocked = false;
 
@@ -865,7 +863,9 @@ export const createCODOrder = async (req, res) => {
       }
     }
 
-    const orderData = {
+    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    const order = await Order.create({
       userId,
       items: cart.items.map((item) => ({
         productId: item.productId._id,
@@ -875,64 +875,61 @@ export const createCODOrder = async (req, res) => {
         price: item.productId.price,
         selectedAttributes: item.selectedAttributes || {},
       })),
-      subtotal: subtotal,
-      discountAmount: discountAmount,
+      totalAmount: finalAmount,
+      subtotal,
+      discountAmount,
       shippingCharges: 0,
       taxAmount: 0,
-      totalAmount: finalAmount,
-      appliedCoupon: appliedCoupon
-        ? {
-            code: appliedCoupon.code,
-            discountAmount: appliedCoupon.discountAmount,
-          }
-        : undefined,
       shippingAddress: {
         ...shippingAddress,
-        email: req.user.email,
+        email: user.email,
       },
+      paymentStatus: "pending", 
+      orderStatus: "confirmed", 
       paymentMethod: "cod",
-      paymentStatus: "pending",
-      orderStatus: "confirmed",
-      sessionId: sessionId,
-    };
+      orderNumber,
+      appliedCoupon,
+      webhookReceived: true, 
+    });
 
-    const order = await Order.create(orderData);
-
-    console.log(`✅ COD order created: ${order.orderNumber}`);
+    console.log(`✅ COD Order created: ${orderNumber}`);
 
     await updateStockAndClearCart(order);
-
     await unlockCart(userId, sessionId);
 
-    if (order.appliedCoupon && order.appliedCoupon.code) {
+    if (appliedCoupon) {
+      await CouponUsage.create({
+        couponCode: appliedCoupon.code,
+        userId: userId,
+        orderId: order._id,
+        discountAmount: discountAmount,
+        originalAmount: subtotal,
+        finalAmount: finalAmount,
+        couponDetails: appliedCoupon,
+      });
+
       await Coupon.findOneAndUpdate(
-        { code: order.appliedCoupon.code },
+        { code: appliedCoupon.code },
         { $inc: { currentUsageCount: 1 } }
       );
     }
 
     res.json({
       success: true,
-      message: "COD order created successfully",
-      order: {
-        _id: order._id,
-        orderNumber: order.orderNumber,
-        totalAmount: order.totalAmount,
-        subtotal: order.subtotal,
-        discountAmount: order.discountAmount,
-      },
+      message: "Order placed successfully",
+      order,
     });
 
   } catch (error) {
-    console.error("Create COD order error:", error);
-
+    console.error("COD Order Error:", error);
+    
     if (cartLocked && req.user?.id) {
-        await unlockCart(req.user.id, req.cartSessionId);
+       await unlockCart(req.user.id, req.cartSessionId);
     }
 
     res.status(500).json({
       success: false,
-      message: "Failed to create COD order",
+      message: "Failed to place order",
       error: error.message,
     });
   }

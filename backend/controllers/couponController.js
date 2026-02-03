@@ -237,20 +237,11 @@ export const validateCoupon = async (req, res) => {
       return handleRegularCoupon(coupon, req, res);
     }
 
-    // If not a regular coupon, check if it's a referral code
-    const referral = await Referral.findOne({
-      referralCode: code.toUpperCase(),
-      isActive: true,
-    }).populate("userId", "name email");
 
-    if (referral) {
-      return handleReferralCode(referral, userId, cartTotal, res);
-    }
-
-    // If neither coupon nor referral code found
+    // If neither coupon code found
     return res.status(404).json({
       success: false,
-      message: "Invalid or expired coupon/referral code",
+      message: "Invalid or expired coupon code",
     });
   } catch (error) {
     console.error("Validate coupon error:", error);
@@ -342,47 +333,7 @@ const handleRegularCoupon = async (coupon, req, res) => {
   });
 };
 
-const handleReferralCode = async (referral, userId, cartTotal, res) => {
-  // Check if user is using their own referral code
-  if (referral.userId._id.toString() === userId) {
-    return res.status(400).json({
-      success: false,
-      message: "You cannot use your own referral code",
-    });
-  }
 
-  // Check if user has already used a referral code in a previous order
-  const existingReferralUsage = await Referral.findOne({
-    "referredOrders.referredByUserId": userId,
-    "referredOrders.rewardStatus": { $in: ["pending", "approved"] },
-  });
-
-  if (existingReferralUsage) {
-    return res.status(400).json({
-      success: false,
-      message: "You have already used a referral code in a previous order",
-    });
-  }
-
-  // For referral codes, we don't apply immediate discount
-  // Just validate and track for admin approval after order completion
-  return res.json({
-    success: true,
-    message: `Referral code applied successfully! ${referral.userId.name} will receive rewards after your order is completed.`,
-    coupon: {
-      code: referral.referralCode,
-      name: "Referral Bonus",
-      description: `Referral from ${referral.userId.name} - rewards applied after order completion`,
-      discountType: "referral",
-      discountValue: 0, // No immediate discount
-      discountAmount: 0,
-      finalAmount: cartTotal, // No change to cart total
-      isReferral: true,
-      referrerId: referral.userId._id,
-      referrerName: referral.userId.name,
-    },
-  });
-};
 
 const validateCouponApplicability = (coupon, cartItems) => {
   // If no specific products/categories are set, coupon applies to all items

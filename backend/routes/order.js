@@ -23,7 +23,7 @@ import {
   getVendorOrders,
   getVendorAnalytics,
 } from "../controllers/orderController.js";
-import { lockCartForCheckout } from "../middlewares/cartLockMiddleware.js";
+import { lockCartForCheckout,unlockCart } from "../middlewares/cartLockMiddleware.js";
 
 const router = express.Router();
 
@@ -43,6 +43,7 @@ router.post(
   lockCartForCheckout,
   createPaymentFromCart
 );
+
 router.post("/orders/create-cod", protect, lockCartForCheckout, createCODOrder);
 
 router.post("/cart/unlock", protect, async (req, res) => {

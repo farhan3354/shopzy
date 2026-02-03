@@ -6,15 +6,17 @@ import {
   FiUser,
   FiMenu,
   FiX,
+  FiExternalLink,
+  FiLogOut,
 } from "react-icons/fi";
 import { logout } from "./../../../redux/authSlice/authSlice";
 import Swal from "sweetalert2";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import logo from './../../../assets/logo.png'
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const user = useSelector((state) => state.auth.user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -37,33 +39,59 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex-shrink-0 flex items-center">
-              <div className="flex items-center gap-2">
-                <img
-                  src={logo}
-                  alt="ShopNow Logo"
-                  className="h-8 sm:h-10 w-auto"
-                />
-              </div>
-              {/* <h1 className="text-2xl font-bold text-indigo-600">ShopNow</h1> */}
-            </div>
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div className="hidden md:block flex-1"></div>
+            <div className="hidden md:flex items-center space-x-6">
+              <Link
+                to="/"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#4A90E2] transition-colors"
+              >
+                <FiExternalLink className="w-4 h-4" />
+                <span>View Website</span>
+              </Link>
+              
+              <div className="h-6 w-px bg-gray-200"></div>
 
-            <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col items-end mr-1">
+                  <span className="text-sm font-bold text-gray-900 leading-tight">
+                    {user?.name || "Vendor"}
+                  </span>
+                  <span className="text-xs text-gray-500 font-medium capitalize">
+                    {user?.userRole || "Vendor"}
+                  </span>
+                </div>
+                <div className="w-10 h-10 bg-[#4A90E2]/10 rounded-full flex items-center justify-center text-[#4A90E2] border border-[#4A90E2]/20 shadow-sm">
+                  <FiUser className="w-5 h-5" />
+                </div>
+              </div>
+
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium cursor-pointer"
+                className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 group"
+                title="Logout"
               >
-                Logout
+                <FiLogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
               </button>
+            </div>
+
+            {/* Mobile Menu Toggle */}
+            <div className="flex md:hidden items-center gap-3">
+               <Link
+                to="/"
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                title="View Website"
+              >
+                <FiExternalLink className="w-5 h-5" />
+              </Link>
               <button
-                className="md:hidden p-2 text-gray-700"
+                className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? (
-                  <FiX className="h-6 w-6" />
+                  <FiX className="h-6 w-6 text-[#4A90E2]" />
                 ) : (
                   <FiMenu className="h-6 w-6" />
                 )}
@@ -71,6 +99,34 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100 shadow-2xl absolute w-full animate-in slide-in-from-top-4 duration-200">
+            <div className="px-4 py-6 space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
+                <div className="w-12 h-12 bg-[#4A90E2] rounded-full flex items-center justify-center text-white shadow-md">
+                  <FiUser className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900">{user?.name || "Vendor"}</p>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{user?.userRole || "Vendor"}</p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-gray-900 text-white rounded-2xl hover:bg-black transition-all font-bold shadow-lg shadow-gray-200"
+              >
+                <FiLogOut className="w-5 h-5" />
+                <span>Logout Session</span>
+              </button>
+            </div>
+          </div>
+        )}
       </header>
     </>
   );
