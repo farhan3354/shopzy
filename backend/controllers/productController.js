@@ -115,6 +115,22 @@ export const createProduct = async (req, res) => {
       }
     }
 
+    // Parse specifications
+    let parsedSpecifications = [];
+    if (req.body.specifications) {
+      try {
+        parsedSpecifications = JSON.parse(req.body.specifications);
+        if (!Array.isArray(parsedSpecifications)) {
+          throw new Error("Specifications must be an array");
+        }
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid specifications format",
+        });
+      }
+    }
+
     // Extract Cloudinary URLs and public IDs from req.files
     // CloudinaryStorage automatically uploads files and provides these properties
     const images = req.files.map(file => file.path); // Cloudinary URL
@@ -139,6 +155,7 @@ export const createProduct = async (req, res) => {
       stock: parseInt(stock),
       description: description?.trim(),
       attributes: parsedAttributes,
+      specifications: parsedSpecifications,
       images,
       publicIds,
       producttype: producttype || "physical",
@@ -330,6 +347,23 @@ export const updateProduct = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: "Invalid attributes format",
+        });
+      }
+    }
+
+    // Handle specifications
+    if (req.body.specifications) {
+      try {
+        const parsedSpecifications = JSON.parse(req.body.specifications);
+        if (Array.isArray(parsedSpecifications)) {
+          updateData.specifications = parsedSpecifications;
+          console.log("✅ Specifications parsed successfully");
+        }
+      } catch (e) {
+        console.error("❌ Invalid specifications format:", e);
+        return res.status(400).json({
+          success: false,
+          message: "Invalid specifications format",
         });
       }
     }

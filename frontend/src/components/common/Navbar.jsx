@@ -281,6 +281,19 @@ const Header = () => {
       setIsLoginModalOpen(true);
     }
   };
+  const handleProfileClick = () => {
+  if (!user) return;
+
+  if (user.userRole === "admin") {
+    navigate("/admin-dashboard");
+  } else if (user.userRole === "vendor") {
+    navigate("/vendor");
+  } else {
+    navigate("/user-dashboard");
+  }
+
+  setShowUserDropdown(false);
+};
 
   const handleLogout = () => {
     dispatch(logout());
@@ -543,14 +556,13 @@ const Header = () => {
                         <p className="text-xs text-gray-500">{user?.email}</p>
                       </div>
 
-                      <Link
-                        to="/user-dashboard/profile"
-                        onClick={() => setShowUserDropdown(false)}
+                      <button                       
+                        onClick={handleProfileClick}
                         className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mt-1"
                       >
                         <FiUser className="w-4 h-4" />
                         My Profile
-                      </Link>
+                      </button>
 
                       <button
                         onClick={handleOrdersClick}

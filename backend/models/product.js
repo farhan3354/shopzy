@@ -41,6 +41,13 @@ const productSchema = new mongoose.Schema(
         fieldType: { type: String },
       },
     ],
+    
+    specifications: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true }
+      }
+    ],
 
     status: {
       type: String,
