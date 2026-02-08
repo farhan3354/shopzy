@@ -101,9 +101,12 @@ export default function Dashboard() {
         // Fetch Total Customers
         const customersRes = await api.get(USER_ROUTES.customers);
         if (customersRes.data.success) {
-          setStats(prev => ({
+          const totalCustomers = (customersRes.data.customer || []).filter(
+            (u) => u.userRole === "user"
+          ).length;
+          setStats((prev) => ({
             ...prev,
-            customerCount: customersRes.data.pagination?.totalOrders || customersRes.data.data?.length || 0,
+            customerCount: totalCustomers,
           }));
         }
 
@@ -141,8 +144,6 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-black font-['Outfit'] mb-2">Dashboard Overview</h1>
         <p className="text-gray-500 font-['Outfit'] tracking-wide">Welcome back to Marotix admin panel.</p>
       </div>
-
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard 
           title="Total Revenue" 
@@ -171,7 +172,6 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Sales Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-black font-['Outfit']">Revenue Trend</h3>
@@ -244,7 +244,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Orders Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex items-center justify-between">
           <h3 className="text-lg font-bold text-black font-['Outfit']">Recent Orders</h3>

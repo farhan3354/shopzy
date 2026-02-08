@@ -574,7 +574,10 @@ export default function ProductDetails() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <ProductDescription description={product.description} />
+          <ProductDescription 
+            description={product.description} 
+            specifications={product.specifications} 
+          />
         </div>
       </div>
       <WhyPeople />

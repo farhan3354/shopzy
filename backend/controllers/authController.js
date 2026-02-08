@@ -495,14 +495,15 @@ export const cleanupExpiredVerifications = async () => {
 };
 
 export const getcustomer = async (req, res) => {
-  const customer = await AuthModel.find();
+  try {
+    const customer = await AuthModel.find();
 
-  if (!customer && customer.length === 0) {
+    return res.status(200).json({ success: true, customer: customer || [] });
+  } catch (error) {
     return res
-      .status(404)
-      .json({ success: false, message: "No data in the database" });
+      .status(500)
+      .json({ success: false, message: "server error" });
   }
-  return res.status(200).json({ success: true, customer });
 };
 
 // change user
@@ -540,13 +541,13 @@ export const getUserAddresses = async (req, res) => {
       });
     }
 
-    res.json({
+  return  res.json({
       success: true,
       addresses: user.addresses || [],
     });
   } catch (error) {
     console.error("Error fetching addresses:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch addresses",
     });

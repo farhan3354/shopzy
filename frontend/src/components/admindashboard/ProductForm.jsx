@@ -1354,8 +1354,6 @@ export default function ProductForm() {
       if (validSpecifications.length > 0) {
         formData.append("specifications", JSON.stringify(validSpecifications));
       }
-
-      // Append files - field name should be "files" to match multer upload.array("files", 5)
       for (let file of files) {
         formData.append("files", file);
       }
@@ -1374,7 +1372,6 @@ export default function ProductForm() {
         }
       );
 
-      // Cleanup
       if (uploadType === "images") {
         imagePreviews.forEach((preview) =>
           URL.revokeObjectURL(preview.preview)
@@ -1387,7 +1384,7 @@ export default function ProductForm() {
       setSelectedCheckboxes({});
       setDescription("");
       
-      const redirectPath = user?.role === "admin" 
+      const redirectPath = user?.userRole === "admin" 
         ? "/admin-dashboard/products" 
         : "/vendor/products";
       navigate(redirectPath);

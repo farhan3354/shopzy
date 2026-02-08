@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-const ProductDescription = ({ description }) => {
+const ProductDescription = ({ description, specifications }) => {
   const [openSections, setOpenSections] = useState({
     returns: false,
     washCare: false,
     productDescription: false,
+    specifications: false,
   });
 
   const toggleSection = (section) => {
@@ -161,6 +162,81 @@ const ProductDescription = ({ description }) => {
             ) : (
               <p className="text-sm text-gray-500 italic">
                 No description available.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <hr className="border-gray-200" />
+
+      {/* === SPECIFICATIONS SECTION === */}
+      <div>
+        <button
+          onClick={() => toggleSection("specifications")}
+          className="w-full text-left py-4 px-0 focus:outline-none transition duration-200 hover:bg-gray-50 border-none bg-transparent"
+          type="button"
+        >
+          <div className="flex justify-between items-center gap-2 px-4">
+            <div className="flex items-center gap-2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-gray-900"
+              >
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              <p className="text-base font-normal text-gray-900">
+                Specifications
+              </p>
+            </div>
+            <img
+              src="https://cdn.shopify.com/s/files/1/0803/1807/1063/files/Vector_f744aa51-d82d-4894-acef-fd345562b279.svg?v=1751278825"
+              width={12}
+              alt="Arrow Icon"
+              className={`transform transition-transform duration-300 ${
+                openSections.specifications ? "rotate-180" : ""
+              }`}
+            />
+          </div>
+        </button>
+
+        {openSections.specifications && (
+          <div className="transition-all duration-300 ease-in-out px-4 pb-4">
+            {specifications && specifications.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-700">
+                  <tbody>
+                    {specifications.map((spec, index) => (
+                      <tr
+                        key={index}
+                        className={index !== specifications.length - 1 ? "border-b border-gray-100" : ""}
+                      >
+                        <td className="py-3 font-medium text-gray-900 w-1/3">
+                          {spec.key}
+                        </td>
+                        <td className="py-3 text-gray-600">
+                          {spec.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 italic">
+                No specifications available.
               </p>
             )}
           </div>

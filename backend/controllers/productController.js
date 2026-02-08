@@ -131,10 +131,8 @@ export const createProduct = async (req, res) => {
       }
     }
 
-    // Extract Cloudinary URLs and public IDs from req.files
-    // CloudinaryStorage automatically uploads files and provides these properties
-    const images = req.files.map(file => file.path); // Cloudinary URL
-    const publicIds = req.files.map(file => file.filename); // Cloudinary public_id
+    const images = req.files.map(file => file.path); 
+    const publicIds = req.files.map(file => file.filename); 
 
     console.log("☁️ Cloudinary URLs:", images);
     console.log("☁️ Cloudinary Public IDs:", publicIds);
@@ -164,9 +162,7 @@ export const createProduct = async (req, res) => {
 
     console.log("✅ Product created successfully");
 
-    // Generate thumbnail versions for images
     const thumbnails = images.map(url => {
-      // Transform Cloudinary URL for thumbnail
       return url.replace('/upload/', '/upload/w_300,h_300,c_fill/');
     });
 
@@ -202,7 +198,6 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // Check if it's a Cloudinary error
     if (error.message && error.message.includes('api_key')) {
       return res.status(500).json({
         success: false,
@@ -217,7 +212,6 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Update Product Controller for Cloudinary
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -235,14 +229,12 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    // Handle file updates
     if (req.files && req.files.length > 0) {
       console.log("🔄 New files uploaded, replacing old ones");
 
       const oldPublicIds = product.publicIds || [];
 
       try {
-        // Extract new Cloudinary URLs and public IDs
         const newImages = req.files.map(file => file.path);
         const newPublicIds = req.files.map(file => {
           if (file.filename) {
