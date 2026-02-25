@@ -6,37 +6,15 @@ import {
   FiTrendingUp,
   FiDownload,
 } from "react-icons/fi";
+import api from "../../../utils/api";
+import { useSelector } from "react-redux";
 
 const VendorReport = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reportData, setReportData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const topProducts = [
-    { id: 1, name: "Wireless Headphones", sales: 120, revenue: 11998.8 },
-    { id: 2, name: "Running Shoes", sales: 85, revenue: 6799.15 },
-    { id: 3, name: "Smart Watch", sales: 65, revenue: 12999.35 },
-    { id: 4, name: "Cotton T-Shirt", sales: 142, revenue: 3548.58 },
-    { id: 5, name: "Leather Wallet", sales: 78, revenue: 3899.22 },
-  ];
-
-  const categoryRevenue = [
-    { category: "Electronics", revenue: 28500, percentage: 65 },
-    { category: "Clothing", revenue: 8500, percentage: 19 },
-    { category: "Footwear", revenue: 4800, percentage: 11 },
-    { category: "Accessories", revenue: 2200, percentage: 5 },
-  ];
-
-  const salesData = [
-    { day: "Mon", sales: 1200 },
-    { day: "Tue", sales: 1900 },
-    { day: "Wed", sales: 1500 },
-    { day: "Thu", sales: 2100 },
-    { day: "Fri", sales: 1800 },
-    { day: "Sat", sales: 2500 },
-    { day: "Sun", sales: 2200 },
-  ];
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
     const today = new Date();
@@ -51,20 +29,30 @@ const VendorReport = () => {
     setEndDate(lastDayOfMonth.toISOString().split("T")[0]);
   }, []);
 
-  const generateReport = () => {
+  const generateReport = async () => {
+    if (!startDate || !endDate) {
+      alert("Please select both start and end dates");
+      return;
+    }
+    
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setReportData({
-        totalRevenue: 43700,
-        totalOrders: 245,
-        averageOrderValue: 178.36,
-        topProducts,
-        categoryRevenue,
-        salesData,
-      });
+    try {
+      const response = await api.get(
+        `/getall-orders/vendors/report?startDate=${startDate}&endDate=${endDate}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.success) {
+        setReportData(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      alert("Failed to generating report content. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const exportReport = () => {
@@ -161,7 +149,7 @@ const VendorReport = () => {
                   <div className="ml-4">
                     <p className="text-sm text-blue-600">Total Revenue</p>
                     <h3 className="text-2xl font-bold text-gray-900">
-                      ${reportData.totalRevenue.toLocaleString()}
+                      ₹{reportData.totalRevenue.toLocaleString()}
                     </h3>
                   </div>
                 </div>
@@ -189,7 +177,7 @@ const VendorReport = () => {
                   <div className="ml-4">
                     <p className="text-sm text-green-600">Avg. Order Value</p>
                     <h3 className="text-2xl font-bold text-gray-900">
-                      ${reportData.averageOrderValue.toFixed(2)}
+                      ₹{reportData.averageOrderValue.toFixed(2)}
                     </h3>
                   </div>
                 </div>
@@ -211,10 +199,10 @@ const VendorReport = () => {
                           style={{
                             height: `${(item.sales / maxSales) * 100}%`,
                           }}
-                          title={`$${item.sales}`}
+                          title={`₹${item.sales}`}
                         ></div>
                         <span className="text-xs text-gray-500 mt-1">
-                          {item.day}
+                          {item.date}
                         </span>
                       </div>
                     ))}
@@ -245,7 +233,7 @@ const VendorReport = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-medium text-gray-900">
-                          ${product.revenue.toLocaleString()}
+                          ₹{product.revenue.toLocaleString()}
                         </div>
                         <div className="text-xs text-gray-500">
                           {product.sales} units sold
@@ -268,7 +256,7 @@ const VendorReport = () => {
                           {item.category}
                         </span>
                         <span className="text-sm text-gray-900">
-                          ${item.revenue.toLocaleString()}
+                          ₹{item.revenue.toLocaleString()}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -319,7 +307,7 @@ const VendorReport = () => {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-gray-900">
-                          ${reportData.totalRevenue.toLocaleString()}
+                          ₹{reportData.totalRevenue.toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-500">
                           Total Revenue

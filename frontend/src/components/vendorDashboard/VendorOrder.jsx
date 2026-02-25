@@ -9,6 +9,7 @@ import {
   FiEdit,
   FiTrash2,
   FiEye,
+  FiDownload,
 } from "react-icons/fi";
 import api from "../../../utils/api";
 
@@ -17,8 +18,10 @@ const VendorOrders = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const token = useSelector((state) => state.auth.token);
@@ -111,6 +114,11 @@ const VendorOrders = () => {
     setShowStatusModal(true);
   };
 
+  const openDetailsModal = (order) => {
+    setSelectedOrder(order);
+    setShowDetailsModal(true);
+  };
+
   const handleStatusUpdate = () => {
     if (!selectedOrder || !newStatus) return;
 
@@ -141,7 +149,10 @@ const VendorOrders = () => {
     const matchesStatus =
       statusFilter === "all" || order.orderStatus === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const matchesPaymentMethod =
+      paymentMethodFilter === "all" || order.paymentMethod === paymentMethodFilter;
+
+    return matchesSearch && matchesStatus && matchesPaymentMethod;
   });
 
   const getStatusColor = (status) => {
@@ -179,8 +190,39 @@ const VendorOrders = () => {
   const getTotalRevenue = () => {
     if (!Array.isArray(orders)) return 0;
     return orders
-      .filter((order) => order.paymentStatus === "completed")
+      .filter((order) => {
+        if (order.paymentStatus === "completed") return true;
+        if (order.paymentMethod === "cod" && (order.orderStatus === "confirmed" || order.orderStatus === "delivered")) return true;
+        return false;
+      })
       .reduce((total, order) => total + (order.totalAmount || 0), 0);
+  };
+
+  const exportToCSV = () => {
+    if (filteredOrders.length === 0) return;
+
+    const headers = ["Order Number", "Customer", "Email", "Amount", "Status", "Payment", "Payment Method", "Date"];
+    const csvData = filteredOrders.map(order => [
+      order.orderNumber,
+      order.shippingAddress?.fullName || "N/A",
+      order.userId?.email || "N/A",
+      order.totalAmount?.toFixed(2),
+      order.orderStatus,
+      order.paymentStatus,
+      order.paymentMethod || "online",
+      new Date(order.createdAt).toLocaleDateString()
+    ]);
+
+    const csvContent = [headers, ...csvData].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `vendor_orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -197,12 +239,20 @@ const VendorOrders = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">All Orders</h1>
-          <p className="text-gray-600 mt-2">
-            Manage and track all customer orders
-          </p>
-        </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">All Orders</h1>
+              <p className="text-gray-600 mt-2">
+                Manage and track all customer orders
+              </p>
+            </div>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+              <FiDownload /> Export CSV
+            </button>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -288,6 +338,17 @@ const VendorOrders = () => {
             </div>
             <div className="w-full md:w-48">
               <select
+                value={paymentMethodFilter}
+                onChange={(e) => setPaymentMethodFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="all">All Payments</option>
+                <option value="razorpay">Online (Razorpay)</option>
+                <option value="cod">Cash on Delivery</option>
+              </select>
+            </div>
+            <div className="w-full md:w-48">
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -333,8 +394,8 @@ const VendorOrders = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Payment
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
@@ -381,14 +442,21 @@ const VendorOrders = () => {
                           >
                             {order.orderStatus}
                           </span>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusColor(
-                              order.paymentStatus
-                            )}`}
-                          >
-                            {order.paymentStatus}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            order.paymentMethod === 'cod' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
+                          }`}>
+                            {order.paymentMethod === 'cod' ? 'COD' : 'Online'}
                           </span>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusColor(
+                            order.paymentStatus
+                          )}`}
+                        >
+                          {order.paymentStatus}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(order.createdAt).toLocaleDateString()}
@@ -412,12 +480,7 @@ const VendorOrders = () => {
                           <button
                             className="text-gray-600 hover:text-gray-900 p-1 rounded"
                             title="View Details"
-                            onClick={() => {
-                              // Navigate to order details page or show modal
-                              alert(
-                                `View details for order: ${order.orderNumber}`
-                              );
-                            }}
+                            onClick={() => openDetailsModal(order)}
                           >
                             <FiEye className="w-4 h-4" />
                           </button>
@@ -479,6 +542,89 @@ const VendorOrders = () => {
                 >
                   {updating ? "Updating..." : "Update Status"}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showDetailsModal && selectedOrder && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl my-8">
+              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-900">Order Details</h3>
+                <button onClick={() => setShowDetailsModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs uppercase text-gray-500 font-semibold tracking-wider">Order Number</p>
+                    <p className="text-lg font-bold text-indigo-600">#{selectedOrder.orderNumber}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs uppercase text-gray-500 font-semibold tracking-wider">Date</p>
+                    <p className="text-gray-900 font-medium">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Customer Info</p>
+                    <p className="text-sm text-gray-700">{selectedOrder.shippingAddress?.fullName}</p>
+                    <p className="text-sm text-gray-500">{selectedOrder.userId?.email}</p>
+                    <p className="text-sm text-gray-500">{selectedOrder.userId?.phone || "No phone provided"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Shipping Address</p>
+                    <p className="text-sm text-gray-700">{selectedOrder.shippingAddress?.street}</p>
+                    <p className="text-sm text-gray-700">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}</p>
+                    <p className="text-sm text-gray-700">{selectedOrder.shippingAddress?.pincode}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 mb-3 ml-1">Order Items</p>
+                  <div className="border border-gray-100 rounded-lg divide-y divide-gray-100 overflow-hidden">
+                    {selectedOrder.items?.map((item, idx) => (
+                      <div key={idx} className="p-4 flex items-center gap-4 bg-white hover:bg-gray-50 transition">
+                        <img 
+                          src={item.productId?.images?.[0] || 'https://via.placeholder.com/150'} 
+                          alt={item.productId?.name} 
+                          className="w-16 h-16 object-cover rounded shadow-sm"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{item.productId?.name}</p>
+                          <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</p>
+                          <p className="text-xs text-gray-500">₹{item.price} each</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-gray-100 pt-6">
+                  <div className="flex gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusColor(selectedOrder.orderStatus)}`}>
+                      {selectedOrder.orderStatus}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+                      selectedOrder.paymentMethod === 'cod' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
+                    }`}>
+                      {selectedOrder.paymentMethod === 'cod' ? 'COD' : 'Online'}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Total Amount</p>
+                    <p className="text-3xl font-extrabold text-indigo-600">₹{selectedOrder.totalAmount?.toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                <button onClick={() => setShowDetailsModal(false)} className="px-6 py-2 bg-white border border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 shadow-sm transition">Close Details</button>
               </div>
             </div>
           </div>

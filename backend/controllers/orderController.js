@@ -388,12 +388,24 @@ export const getVendorAnalytics = async (req, res) => {
         let totalOrders = orders.length;
         let totalProducts = vendorProducts.length;
         let customers = new Set();
+        const categoryStats = {};
 
         orders.forEach(order => {
+            const isRevenueGenerating = 
+                order.paymentStatus === "completed" || 
+                (order.paymentMethod === "cod" && (order.orderStatus === "confirmed" || order.orderStatus === "delivered"));
+
             customers.add(order.userId.toString());
             order.items.forEach(item => {
                 if (productIds.some(id => id.equals(item.productId._id))) {
-                    totalRevenue += (item.price * item.quantity);
+                    if (isRevenueGenerating) {
+                        const itemRevenue = (item.price * item.quantity);
+                        totalRevenue += itemRevenue;
+
+                        // Add category stats
+                        const catId = item.productId.category?.toString() || "Other";
+                        categoryStats[catId] = (categoryStats[catId] || 0) + itemRevenue;
+                    }
                 }
             });
         });
@@ -420,6 +432,11 @@ export const getVendorAnalytics = async (req, res) => {
             return { date, sales: dailyRevenue };
         });
 
+        const categoryData = Object.keys(categoryStats).map(catId => ({
+            name: catId, // Ideally resolve to name, but ID is a start
+            value: categoryStats[catId]
+        }));
+
         res.json({
             success: true,
             data: {
@@ -430,12 +447,131 @@ export const getVendorAnalytics = async (req, res) => {
                     customers: customers.size
                 },
                 salesData,
-                categoryData: [] // Optional: fetch category distribution if needed
+                categoryData
             }
         });
     } catch (error) {
         console.error("Error fetching vendor analytics:", error);
         res.status(500).json({ success: false, message: "Failed to fetch vendor analytics" });
+    }
+}
+
+export const getVendorDetailedReport = async (req, res) => {
+    try {
+        const vendorId = req.user.id;
+        const { startDate, endDate } = req.query;
+        
+        const vendorProducts = await Product.find({ userId: vendorId }).select("_id category");
+        const productIds = vendorProducts.map(p => p._id);
+
+        const filter = {
+            "items.productId": { $in: productIds },
+            orderStatus: { $ne: "cancelled" }
+        };
+
+        if (startDate && endDate) {
+            filter.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+            };
+        }
+
+        const orders = await Order.find(filter)
+            .populate("items.productId", "name category price")
+            .populate("userId", "name email");
+
+        let totalRevenue = 0;
+        let totalOrders = orders.length;
+        let categoryStats = {};
+        let productSales = {};
+
+        orders.forEach(order => {
+            const isRevenueGenerating = 
+                order.paymentStatus === "completed" || 
+                (order.paymentMethod === "cod" && (order.orderStatus === "confirmed" || order.orderStatus === "delivered"));
+
+            order.items.forEach(item => {
+                if (productIds.some(id => id.equals(item.productId._id))) {
+                    const itemRevenue = item.price * item.quantity;
+                    
+                    if (isRevenueGenerating) {
+                        totalRevenue += itemRevenue;
+
+                        // Product Stats
+                        const prodId = item.productId._id.toString();
+                        if (!productSales[prodId]) {
+                            productSales[prodId] = { 
+                                name: item.productId.name, 
+                                sales: 0, 
+                                revenue: 0 
+                            };
+                        }
+                        productSales[prodId].sales += item.quantity;
+                        productSales[prodId].revenue += itemRevenue;
+
+                        // Category Stats
+                        const catId = item.productId.category?.toString() || "Uncategorized";
+                        if (!categoryStats[catId]) {
+                            categoryStats[catId] = { revenue: 0, count: 0 };
+                        }
+                        categoryStats[catId].revenue += itemRevenue;
+                        categoryStats[catId].count += item.quantity;
+                    }
+                }
+            });
+        });
+
+        // Format sales data for chart (grouped by date)
+        const dateStats = {};
+        orders.forEach(order => {
+            const date = order.createdAt.toISOString().split('T')[0];
+            if (!dateStats[date]) dateStats[date] = 0;
+            
+            const isRevenueGenerating = 
+                order.paymentStatus === "completed" || 
+                (order.paymentMethod === "cod" && (order.orderStatus === "confirmed" || order.orderStatus === "delivered"));
+
+            if (isRevenueGenerating) {
+                order.items.forEach(item => {
+                    if (productIds.some(id => id.equals(item.productId._id))) {
+                        dateStats[date] += (item.price * item.quantity);
+                    }
+                });
+            }
+        });
+
+        const salesTrend = Object.keys(dateStats).map(date => ({
+            date,
+            sales: dateStats[date]
+        })).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        const topProducts = Object.values(productSales)
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 5);
+
+        // Fetch category names for the IDs
+        const categoryIds = Object.keys(categoryStats);
+        // This is a bit simplified, ideally populate or fetch names
+        const categoryData = categoryIds.map(cat => ({
+            category: cat, // You might want to resolve this to a name
+            revenue: categoryStats[cat].revenue,
+            percentage: totalRevenue > 0 ? (categoryStats[cat].revenue / totalRevenue) * 100 : 0
+        }));
+
+        res.json({
+            success: true,
+            data: {
+                totalRevenue,
+                totalOrders,
+                averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
+                topProducts,
+                categoryRevenue: categoryData,
+                salesData: salesTrend
+            }
+        });
+    } catch (error) {
+        console.error("Error generating vendor report:", error);
+        res.status(500).json({ success: false, message: "Failed to generate report" });
     }
 }
 

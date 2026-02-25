@@ -25,18 +25,32 @@ export default function VendorDashboard() {
     customers: 0,
   });
   const [salesData, setSalesData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
   const token = useSelector(state => state.auth.token);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         setLoading(true);
-        const response = await api.get("/getall-orders/orders/vendor/analytics", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data.success) {
-          setStats(response.data.data.stats);
-          setSalesData(response.data.data.salesData);
+        const [analyticsRes, productsRes] = await Promise.all([
+          api.get("/getall-orders/orders/vendor/analytics", {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          api.get("/products/vendor", {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        if (analyticsRes.data.success) {
+          setStats(analyticsRes.data.data.stats);
+          setSalesData(analyticsRes.data.data.salesData);
+          setCategoryData(analyticsRes.data.data.categoryData || []);
+        }
+
+        if (productsRes.data.success) {
+          const lowStock = productsRes.data.products.filter(p => p.stock < 10);
+          setLowStockProducts(lowStock.slice(0, 5));
         }
       } catch (error) {
         console.error("Error fetching analytics:", error);
@@ -48,12 +62,7 @@ export default function VendorDashboard() {
     fetchAnalytics();
   }, [token]);
 
-  const categoryData = [
-    { name: "Electronics", value: 45, color: "#3B82F6" },
-    { name: "Clothing", value: 30, color: "#10B981" },
-    { name: "Books", value: 15, color: "#F59E0B" },
-    { name: "Home & Garden", value: 10, color: "#EF4444" },
-  ];
+  const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
 
   if (loading) {
     return (
@@ -118,27 +127,56 @@ export default function VendorDashboard() {
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Sales by Category (Mock)
+              Sales by Category
             </h3>
             <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}%`}
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
+              {categoryData.length > 0 ? (
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-400">
+                  No category data available
+                </div>
+              )}
             </ResponsiveContainer>
           </div>
         </div>
+
+        {lowStockProducts.length > 0 && (
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-red-100">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                Low Stock Alerts
+              </h3>
+              <a href="/vendor/products" className="text-sm text-blue-600 hover:underline">View all products</a>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {lowStockProducts.map((product) => (
+                <div key={product._id} className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
+                  <img src={product.images?.[0]} alt={product.name} className="w-12 h-12 object-cover rounded shadow-sm bg-white" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{product.name}</p>
+                    <p className="text-xs text-red-600 font-bold">{product.stock} items left</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

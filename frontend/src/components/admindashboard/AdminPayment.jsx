@@ -53,7 +53,7 @@ const AdminPayment = () => {
         order.paymentStatus,
         order.orderStatus
       ),
-      paymentMethod: "razorpay",
+      paymentMethod: order.paymentMethod || "razorpay",
       createdAt: order.createdAt,
       originalOrder: order,
     }));
@@ -71,6 +71,7 @@ const AdminPayment = () => {
         if (orderStatus === "cancelled") {
           return "cancelled";
         }
+        // For COD, if delivered or confirmed, we count it as completed revenue
         return "pending";
       default:
         return "pending";
@@ -79,20 +80,44 @@ const AdminPayment = () => {
 
   const calculateStats = () => {
     const totalRevenue = payments
-      .filter((payment) => payment.status === "completed")
+      .filter((payment) => {
+        if (payment.status === "completed") return true;
+        // Include COD orders that are confirmed or delivered (revenue)
+        const order = payment.originalOrder;
+        if (
+          payment.paymentMethod === "cod" &&
+          (order?.orderStatus === "confirmed" || order?.orderStatus === "delivered")
+        ) {
+          return true;
+        }
+        return false;
+      })
       .reduce((sum, payment) => sum + (payment.amount || 0), 0);
 
-    const successfulPayments = payments.filter(
-      (payment) => payment.status === "completed"
-    ).length;
-
+    const successfulPayments = payments.filter((payment) => {
+      if (payment.status === "completed") return true;
+      const order = payment.originalOrder;
+      if (
+        payment.paymentMethod === "cod" &&
+        (order?.orderStatus === "confirmed" || order?.orderStatus === "delivered")
+      ) {
+        return true;
+      }
+      return false;
+    }).length;
+    
     const failedPayments = payments.filter(
       (payment) => payment.status === "failed"
     ).length;
 
-    const pendingPayments = payments.filter(
-      (payment) => payment.status === "pending"
-    ).length;
+    const pendingPayments = payments.filter((payment) => {
+      const isCodSuccess =
+        payment.paymentMethod === "cod" &&
+        (payment.originalOrder?.orderStatus === "confirmed" ||
+          payment.originalOrder?.orderStatus === "delivered");
+
+      return payment.status === "pending" && !isCodSuccess;
+    }).length;
 
     const refundedPayments = payments.filter(
       (payment) => payment.status === "refunded"
@@ -130,6 +155,8 @@ const AdminPayment = () => {
     switch (method) {
       case "razorpay":
         return "bg-purple-100 text-purple-800";
+      case "cod":
+        return "bg-amber-100 text-amber-800";
       case "card":
         return "bg-indigo-100 text-indigo-800";
       case "upi":
@@ -168,7 +195,29 @@ const AdminPayment = () => {
     const matchesStatus =
       statusFilter === "all" || payment.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const matchesDate = () => {
+      if (dateFilter === "all") return true;
+      const paymentDate = new Date(payment.createdAt);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      if (dateFilter === "today") {
+        return paymentDate >= today;
+      }
+      if (dateFilter === "week") {
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return paymentDate >= weekAgo;
+      }
+      if (dateFilter === "month") {
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return paymentDate >= monthAgo;
+      }
+      return true;
+    };
+
+    return matchesSearch && matchesStatus && matchesDate();
   });
 
   const exportToCSV = () => {

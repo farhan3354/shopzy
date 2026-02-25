@@ -22,6 +22,7 @@ import {
   getRecentOrders,
   getVendorOrders,
   getVendorAnalytics,
+  getVendorDetailedReport,
 } from "../controllers/orderController.js";
 import { lockCartForCheckout,unlockCart } from "../middlewares/cartLockMiddleware.js";
 
@@ -85,6 +86,13 @@ router.get(
   protect,
   vendorMiddleware,
   getVendorAnalytics
+);
+
+router.get(
+  "/getall-orders/vendors/report",
+  protect,
+  vendorMiddleware,
+  getVendorDetailedReport
 );
 
 router.put(
