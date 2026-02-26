@@ -45,7 +45,7 @@ app.use(
   cors({
     origin: function (origin, callback) {
       const allowed = [
-        "https://jobzy-seven.vercel.app",
+        "https://shopzy-lyart.vercel.app",
         "http://localhost:5173",
         "http://localhost:3000",
       ];
@@ -87,9 +87,14 @@ app.get("/", (req, res) => {
 ConnectDB();
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
-  console.log("Server started at port", PORT);
-});
+// app.listen(PORT, () => {
+//   console.log("Server started at port", PORT);
+// });
+
+import serverless from "serverless-http";
+export const handler = serverless(app);
+
+export default app;
 
 // import express from "express";
 // import dovenv from "dotenv";
