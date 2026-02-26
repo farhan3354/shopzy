@@ -1,5 +1,5 @@
 import express from "express";
-import dovenv from "dotenv";
+import dotenv from "dotenv";  
 import connectDB from "./config/db.js";
 import AuthRoute from "./routes/authRoutes.js";
 import cors from "cors";
@@ -19,11 +19,14 @@ import emailRoutes from "./routes/emailRoutes.js";
 import pageRoutes from "./routes/pageRoutes.js";
 import uploadText from "./routes/uploadRoutes.js";
 
-dovenv.config();
+dotenv.config();  // Fixed typo
 
 const app = express();
 
-connectDB();
+// Connect to MongoDB (with better error handling)
+connectDB().catch(err => {
+  console.error("Failed to connect to MongoDB:", err);
+});
 
 const rawBodyMiddleware = (req, res, next) => {
   if (req.path === "/api/webhook") {
@@ -86,20 +89,21 @@ app.get("/", (req, res) => {
   res.send("E-Commerce API is running...");
 });
 
-// const PORT = process.env.PORT || 8000;
-
-// app.listen(PORT, () => {
-//   console.log("Server started at port", PORT);
-// });
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
 
 import serverless from "serverless-http";
 export const handler = serverless(app);
 
 export default app;
 
+
 // import express from "express";
 // import dovenv from "dotenv";
-// import ConnectDB from "./config/db.js";
+// import connectDB from "./config/db.js";
 // import AuthRoute from "./routes/authRoutes.js";
 // import cors from "cors";
 // import categoryRoute from "./routes/categoryRoute.js";
@@ -114,22 +118,24 @@ export default app;
 // import faqRoutes from "./routes/faqRoutes.js";
 // import bannerRoutes from "./routes/bannerRoutes.js";
 // import footerRoutes from "./routes/footerRoutes.js";
+// import emailRoutes from "./routes/emailRoutes.js";
+// import pageRoutes from "./routes/pageRoutes.js";
+// import uploadText from "./routes/uploadRoutes.js";
 
 // dovenv.config();
 
 // const app = express();
-// app.use(express.json());
-// app.use(cors());
 
-// // middleware/rawBody.js
-//  const rawBodyMiddleware = (req, res, next) => {
-//   if (req.path === '/api/webhook') {
-//     let data = '';
-//     req.setEncoding('utf8');
-//     req.on('data', (chunk) => {
+// connectDB();
+
+// const rawBodyMiddleware = (req, res, next) => {
+//   if (req.path === "/api/webhook") {
+//     let data = "";
+//     req.setEncoding("utf8");
+//     req.on("data", (chunk) => {
 //       data += chunk;
 //     });
-//     req.on('end', () => {
+//     req.on("end", () => {
 //       req.rawBody = data;
 //       next();
 //     });
@@ -137,8 +143,31 @@ export default app;
 //     next();
 //   }
 // };
+
 // app.use(rawBodyMiddleware);
 
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       const allowed = [
+//         "https://shopzy-lyart.vercel.app",
+//         "http://localhost:5173",
+//         "http://localhost:3000",
+//       ];
+//       if (!origin || allowed.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
+// // Your routes
 // app.use("/api", AuthRoute);
 // app.use("/api/categories", categoryRoute);
 // app.use("/api/subcategories", subcategoryRoute);
@@ -149,17 +178,24 @@ export default app;
 // app.use("/api/faqs", faqRoutes);
 // app.use("/api/banners", bannerRoutes);
 // app.use("/api", order);
-// app.use("/api", couponRoutes);
+// app.use("/api/coupons/", couponRoutes);
 // app.use("/api", ContactRoute);
-// app.use("/api", footerRoutes);
+// app.use("/api/footer/", footerRoutes);
+// app.use("/api/email", emailRoutes);
+// app.use("/api/pages/dynamic", pageRoutes);
+// app.use("/api/upload", uploadText);
 
 // app.get("/", (req, res) => {
 //   res.send("E-Commerce API is running...");
 // });
 
-// ConnectDB();
-// const PORT = process.env.PORT || 8000;
+// // const PORT = process.env.PORT || 8000;
 
-// app.listen(PORT, () => {
-//   console.log("Server started at port", PORT);
-// });
+// // app.listen(PORT, () => {
+// //   console.log("Server started at port", PORT);
+// // });
+
+// import serverless from "serverless-http";
+// export const handler = serverless(app);
+
+// export default app;
