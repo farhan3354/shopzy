@@ -1,6 +1,6 @@
 import express from "express";
 import dovenv from "dotenv";
-import ConnectDB from "./config/db.js";
+import connectDB from "./config/db.js";
 import AuthRoute from "./routes/authRoutes.js";
 import cors from "cors";
 import categoryRoute from "./routes/categoryRoute.js";
@@ -22,6 +22,8 @@ import uploadText from "./routes/uploadRoutes.js";
 dovenv.config();
 
 const app = express();
+
+connectDB();
 
 const rawBodyMiddleware = (req, res, next) => {
   if (req.path === "/api/webhook") {
@@ -84,8 +86,7 @@ app.get("/", (req, res) => {
   res.send("E-Commerce API is running...");
 });
 
-ConnectDB();
-const PORT = process.env.PORT || 8000;
+// const PORT = process.env.PORT || 8000;
 
 // app.listen(PORT, () => {
 //   console.log("Server started at port", PORT);
