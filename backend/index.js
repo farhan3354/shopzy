@@ -95,6 +95,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
+// const PORT = process.env.PORT || 8000;
+
+// app.listen(PORT, () => {
+//   console.log("Server started at port", PORT);
+// });
+
 import serverless from "serverless-http";
 export const handler = serverless(app);
 
@@ -189,11 +195,11 @@ export default app;
 //   res.send("E-Commerce API is running...");
 // });
 
-// // const PORT = process.env.PORT || 8000;
+// const PORT = process.env.PORT || 8000;
 
-// // app.listen(PORT, () => {
-// //   console.log("Server started at port", PORT);
-// // });
+// app.listen(PORT, () => {
+//   console.log("Server started at port", PORT);
+// });
 
 // import serverless from "serverless-http";
 // export const handler = serverless(app);
