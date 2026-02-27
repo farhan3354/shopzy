@@ -1,5 +1,6 @@
 import Order from "../models/order.js";
 import Product from "../models/product.js";
+import AuthModel from "../models/authModel.js";
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -594,6 +595,66 @@ export const getRecentOrders = async (req, res) => {
       success: false,
       message: "Failed to fetch recent orders",
     });
+  }
+};
+export const getAdminDashboardOverview = async (req, res) => {
+  try {
+    const [
+      revenueData,
+      statusData,
+      monthlyRevenue,
+      recentOrders,
+      customerCount,
+      productCount
+    ] = await Promise.all([
+      Order.aggregate([
+        { $match: { orderStatus: { $ne: "cancelled" } } },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: "$totalAmount" },
+            orderCount: { $sum: 1 },
+            averageOrderValue: { $avg: "$totalAmount" },
+          },
+        },
+      ]),
+      Order.aggregate([
+        { $group: { _id: "$orderStatus", count: { $sum: 1 } } },
+      ]),
+      Order.aggregate([
+        { $match: { orderStatus: { $ne: "cancelled" } } },
+        {
+          $group: {
+            _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+            revenue: { $sum: "$totalAmount" },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
+      ]),
+      Order.find().populate("userId", "name email").sort({ createdAt: -1 }).limit(10),
+      AuthModel.countDocuments({ userRole: "user" }),
+      Product.countDocuments()
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        stats: {
+          totalRevenue: revenueData[0]?.totalRevenue || 0,
+          orderCount: revenueData[0]?.orderCount || 0,
+          averageOrderValue: revenueData[0]?.averageOrderValue || 0,
+          customerCount,
+          productCount,
+        },
+        statusDistribution: statusData,
+        monthlyRevenue,
+        recentOrders,
+      },
+    });
+  } catch (error) {
+    console.error("Dashboard overview error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch dashboard overview" });
   }
 };
 

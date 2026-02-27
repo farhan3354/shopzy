@@ -39,8 +39,9 @@ export const getCategories = async (req, res) => {
     const categories = await Category.find();
 
     if (!categories || categories.length === 0) {
-      return res.status(400).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
+        categories: [],
         message: "No categories found",
       });
     }

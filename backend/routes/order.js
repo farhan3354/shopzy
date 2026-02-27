@@ -23,6 +23,7 @@ import {
   getVendorOrders,
   getVendorAnalytics,
   getVendorDetailedReport,
+  getAdminDashboardOverview,
 } from "../controllers/orderController.js";
 import { lockCartForCheckout,unlockCart } from "../middlewares/cartLockMiddleware.js";
 
@@ -109,6 +110,7 @@ router.delete(
 );
 
 router.get("/analytics", protect, adminMiddleware, getOrderAnalytics);
+router.get("/admin/dashboard-overview", protect, adminMiddleware, getAdminDashboardOverview);
 router.get("/recent", protect, adminMiddleware, getRecentOrders);
 
 

@@ -73,6 +73,7 @@ export const ORDER_ROUTES = {
   userOrders: "/user-orders",
   analytics: "/analytics",
   recent: "/recent",
+  dashboardOverview: "/admin/dashboard-overview",
 };
 
 export const CONTACT_ROUTES = {

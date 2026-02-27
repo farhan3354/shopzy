@@ -64,20 +64,21 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Fetch Analytics
-        const analyticsRes = await api.get(ORDER_ROUTES.analytics);
-        if (analyticsRes.data.success) {
-          const { overview, statusDistribution, monthlyRevenue } = analyticsRes.data.data;
+        const response = await api.get(ORDER_ROUTES.dashboardOverview);
+        
+        if (response.data.success) {
+          const { stats: backendStats, statusDistribution, monthlyRevenue, recentOrders: backendOrders } = response.data.data;
           
-          setStats(prev => ({
-            ...prev,
-            totalRevenue: overview.totalRevenue,
-            orderCount: overview.orderCount,
-            averageOrderValue: overview.averageOrderValue,
-          }));
+          setStats({
+            totalRevenue: backendStats.totalRevenue,
+            orderCount: backendStats.orderCount,
+            averageOrderValue: backendStats.averageOrderValue,
+            customerCount: backendStats.customerCount,
+            productCount: backendStats.productCount,
+          });
 
           // Format chart data
-          const formattedChart = monthlyRevenue.map(item => ({
+          const formattedChart = (monthlyRevenue || []).map(item => ({
             name: `${item._id.month}/${item._id.year}`,
             revenue: item.revenue,
             orders: item.orders,
@@ -85,40 +86,14 @@ export default function Dashboard() {
           setChartData(formattedChart);
 
           // Format status distribution
-          const formattedStatus = statusDistribution.map(item => ({
-            name: item._id.charAt(0).toUpperCase() + item._id.slice(1),
+          const formattedStatus = (statusDistribution || []).map(item => ({
+            name: item._id ? (item._id.charAt(0).toUpperCase() + item._id.slice(1)) : "Unknown",
             value: item.count,
           }));
           setStatusData(formattedStatus);
-        }
 
-        // Fetch Recent Orders
-        const recentRes = await api.get(ORDER_ROUTES.recent);
-        if (recentRes.data.success) {
-          setRecentOrders(recentRes.data.data);
+          setRecentOrders(backendOrders || []);
         }
-
-        // Fetch Total Customers
-        const customersRes = await api.get(USER_ROUTES.customers);
-        if (customersRes.data.success) {
-          const totalCustomers = (customersRes.data.customer || []).filter(
-            (u) => u.userRole === "user"
-          ).length;
-          setStats((prev) => ({
-            ...prev,
-            customerCount: totalCustomers,
-          }));
-        }
-
-        // Fetch Total Products
-        const productsRes = await api.get(PRODUCT_ROUTES.all);
-        if (productsRes.data.success) {
-          setStats(prev => ({
-            ...prev,
-            productCount: productsRes.data.products?.length || 0,
-          }));
-        }
-
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         setError("Failed to load dashboard data");
